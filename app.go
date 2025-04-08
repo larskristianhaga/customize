@@ -29,47 +29,113 @@ type UserConfig struct {
 var (
 	configs = map[string]UserConfig{}
 	mu      sync.RWMutex
-	domain = "https://customize.fly.dev"
+	domain  = "https://customize.fly.dev"
 )
+
+// Example endpoints configuration
+var exampleEndpoints = map[string]UserConfig{
+	"timeout": {
+		DelaySeconds: 10,
+		ResponseBody: `{"status": "success", "message": "This is a 10-second timeout example"}`,
+		StatusCode:   200,
+		HTTPMethod:   "GET",
+	},
+	"error": {
+		DelaySeconds: 1,
+		ResponseBody: `{"status": "error", "message": "This is an error example"}`,
+		StatusCode:   500,
+		HTTPMethod:   "GET",
+	},
+	"success": {
+		DelaySeconds: 1,
+		ResponseBody: `{"status": "success", "message": "This is a success example"}`,
+		StatusCode:   200,
+		HTTPMethod:   "GET",
+	},
+}
 
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-	log.Println("App live and listening on port:", port)
 
 	http.HandleFunc("/", LandingHandler)
 	http.HandleFunc("/dashboard", DashboardHandler)
 	http.HandleFunc("/save", SaveHandler)
-	http.HandleFunc("/api/endpoint/", TimeoutHandler)
+	http.HandleFunc("/api/v1/", ApiHandler)
 	http.HandleFunc("/health", HealthHandler)
 	http.HandleFunc("/robots.txt", RobotsHandler)
 	http.HandleFunc("/sitemap.xml", SitemapHandler)
 
+	log.Println("App live and listening on port:", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
 func LandingHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
+	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/landing.html")
+	if err != nil {
+		tmpl, err = template.ParseFiles("templates/landing.html")
+		if err != nil {
+			http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
-	http.Redirect(w, r, "/dashboard", http.StatusFound)
+	tmpl.Execute(w, nil)
 }
 
-func TimeoutHandler(w http.ResponseWriter, r *http.Request) {
-	userID := strings.TrimPrefix(r.URL.Path, "/api/endpoint/")
-	
-	mu.RLock()
-	cfg, ok := configs[userID]
-	mu.RUnlock()
+func DashboardHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/dashboard.html")
+	if err != nil {
+		tmpl, err = template.ParseFiles("templates/dashboard.html")
+		if err != nil {
+			http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+	tmpl.Execute(w, nil)
+}
 
-	if !ok {
-		http.Error(w, "User config not found", http.StatusNotFound)
+func ApiHandler(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, "/api/v1/")
+	parts := strings.Split(path, "/")
+	
+	if len(parts) < 2 {
+		http.Error(w, "Invalid API path", http.StatusBadRequest)
 		return
 	}
 
+	// Handle example endpoints
+	if parts[0] == "examples" && len(parts) == 2 {
+		exampleName := parts[1]
+		if cfg, ok := exampleEndpoints[exampleName]; ok {
+			HandleRequest(w, r, cfg)
+			return
+		}
+		http.Error(w, "Example not found", http.StatusNotFound)
+		return
+	}
+
+	// Handle custom endpoints
+	if parts[0] == "custom" && len(parts) == 2 {
+		userID := parts[1]
+		mu.RLock()
+		cfg, ok := configs[userID]
+		mu.RUnlock()
+
+		if !ok {
+			http.Error(w, "Endpoint not found", http.StatusNotFound)
+			return
+		}
+
+		HandleRequest(w, r, cfg)
+		return
+	}
+
+	http.Error(w, "Invalid API path", http.StatusBadRequest)
+}
+
+func HandleRequest(w http.ResponseWriter, r *http.Request, cfg UserConfig) {
 	// Check if request method matches configured method
 	if cfg.HTTPMethod != "" && r.Method != cfg.HTTPMethod {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -91,7 +157,7 @@ func TimeoutHandler(w http.ResponseWriter, r *http.Request) {
 	if cfg.FailureRate > 0 && rand.Intn(100) < cfg.FailureRate {
 		status := http.StatusInternalServerError
 		w.WriteHeader(status)
-		fmt.Fprint(w, "Simulated failure")
+		fmt.Fprint(w, cfg.ResponseBody)
 		return
 	}
 
@@ -102,7 +168,6 @@ func TimeoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Calculate delay with variability if configured
 	delay := time.Duration(cfg.DelaySeconds) * time.Second
 	if cfg.RandomDelay {
-		// Add random variation between -50% and +50%
 		variation := rand.Float64() - 0.5
 		delay = time.Duration(float64(delay) * (1 + variation))
 	} else if cfg.ResponseVariability != "none" {
@@ -122,20 +187,6 @@ func TimeoutHandler(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(delay)
 	w.WriteHeader(cfg.StatusCode)
 	fmt.Fprint(w, cfg.ResponseBody)
-}
-
-func DashboardHandler(w http.ResponseWriter, r *http.Request) {
-	// Try to load template from standard location first
-	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/dashboard.html")
-	if err != nil {
-		// Fallback to local development path
-		tmpl, err = template.ParseFiles("templates/dashboard.html")
-		if err != nil {
-			http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
-	tmpl.Execute(w, nil)
 }
 
 func SaveHandler(w http.ResponseWriter, r *http.Request) {
@@ -164,7 +215,7 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the full endpoint URL
-	endpointURL := fmt.Sprintf("http://%s/api/endpoint/%s", host, userID)
+	endpointURL := fmt.Sprintf("http://%s/api/v1/custom/%s", host, userID)
 
 	tmpl := template.Must(template.New("saved").Parse(`
 		<div class="bg-green-50 text-green-800 rounded-lg p-4 mt-4">
@@ -219,7 +270,9 @@ func RobotsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, `User-agent: *
 Allow: /
 Allow: /dashboard
-Disallow: /api/endpoint/
+Disallow: /api/v1/
+Disallow: /api/v1/examples/
+Disallow: /api/v1/custom/
 Disallow: /save
 
 Sitemap: `+domain+`/sitemap.xml`)
