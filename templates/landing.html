@@ -1,24 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CustomizeAPI - API Testing</title>
-    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <title>Customize</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <meta content="tF62NeKi5mahmDXmI7VumkcDGkpiJ98aCx6fITg07Qg" name="google-site-verification"/>
+    <style>
+        body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .nav { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        .nav a { text-decoration: none; color: #3f51b5; font-weight: bold; }
+    </style>
 </head>
-<body class="bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">🛠️ CustomizeAPI Dashboard</h1>
-            <p class="text-gray-600 mb-4">Configure and Test Your API Endpoints</p>
-            <a href="https://www.buymeacoffee.com/larskristianhaga" target="_blank" rel="noopener noreferrer" 
-               class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5a1 1 0 102 0V7a1 1 0 10-2 0v4zm1-6a1 1 0 100-2 1 1 0 000 2z"/>
-                </svg>
-                Buy Me a Beer
-            </a>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="text-4xl font-bold text-gray-900">Welcome to Customize 👋</h1>
+            <p class="text-lg text-gray-700 mt-2">Easily customize and simulate API responses for testing and development.</p>
+        </div>
+        <div class="nav">
+            <a href="/dashboard">Customizable API</a>
+            <a href="/examples">Basic API Examples</a>
+        </div>
+        <div class="text-center mt-8">
+            <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="larskristianhaga" data-color="#FFDD00" data-emoji="🍺" data-font="Cookie" data-text="Buy me a beer" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
         </div>
     </div>
 </body>

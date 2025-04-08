@@ -39,7 +39,7 @@ paths:
               description: URL of the created resource
               schema:
                 type: string
-                example: /api/v1/resources/123
+                example: /api/v1/resources/42
           content:
             application/json:
               schema:
@@ -53,7 +53,7 @@ paths:
                     example: Resource created successfully
                   id:
                     type: string
-                    example: "123"
+                    example: "42"
   /examples/badrequest:
     get:
       summary: Bad Request example

@@ -64,10 +64,10 @@ var exampleEndpoints = map[string]UserConfig{
 	},
 	"created": {
 		DelaySeconds: 1,
-		ResponseBody: `{"status": "created", "message": "Resource created successfully", "id": "123"}`,
+		ResponseBody: `{"status": "created", "message": "Resource created successfully", "id": "42"}`,
 		StatusCode:   201,
 		HTTPMethod:   "POST",
-		CustomHeaders: "Location: /api/v1/resources/123",
+		CustomHeaders: "Location: /api/v1/resources/42",
 	},
 	"badrequest": {
 		DelaySeconds: 1,
