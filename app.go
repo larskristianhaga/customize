@@ -29,6 +29,7 @@ type UserConfig struct {
 var (
 	configs = map[string]UserConfig{}
 	mu      sync.RWMutex
+	domain = "https://customize.fly.dev"
 )
 
 func main() {
@@ -36,18 +37,20 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+	log.Println("App live and listening on port:", port)
 
-	http.HandleFunc("/", landingHandler)
-	http.HandleFunc("/dashboard", dashboardHandler)
-	http.HandleFunc("/save", saveHandler)
-	http.HandleFunc("/api/endpoint/", timeoutHandler)
+	http.HandleFunc("/", LandingHandler)
+	http.HandleFunc("/dashboard", DashboardHandler)
+	http.HandleFunc("/save", SaveHandler)
+	http.HandleFunc("/api/endpoint/", TimeoutHandler)
 	http.HandleFunc("/health", HealthHandler)
+	http.HandleFunc("/robots.txt", RobotsHandler)
+	http.HandleFunc("/sitemap.xml", SitemapHandler)
 
-	log.Printf("🚀 Server started on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
-func landingHandler(w http.ResponseWriter, r *http.Request) {
+func LandingHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
@@ -55,7 +58,7 @@ func landingHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
-func timeoutHandler(w http.ResponseWriter, r *http.Request) {
+func TimeoutHandler(w http.ResponseWriter, r *http.Request) {
 	userID := strings.TrimPrefix(r.URL.Path, "/api/endpoint/")
 	
 	mu.RLock()
@@ -121,13 +124,9 @@ func timeoutHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, cfg.ResponseBody)
 }
 
-func HealthHandler(w http.ResponseWriter, _ *http.Request) {
-	w.Write([]byte("I'm healthy"))
-}
-
-func dashboardHandler(w http.ResponseWriter, r *http.Request) {
+func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	// Try to load template from standard location first
-	tmpl, err := template.ParseFiles("/usr/local/share/customizeapi/templates/dashboard.html")
+	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/dashboard.html")
 	if err != nil {
 		// Fallback to local development path
 		tmpl, err = template.ParseFiles("templates/dashboard.html")
@@ -139,7 +138,7 @@ func dashboardHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
-func saveHandler(w http.ResponseWriter, r *http.Request) {
+func SaveHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	userID := uuid.New().String()
 	cfg := UserConfig{
@@ -211,4 +210,30 @@ func atoi(s string) int {
 	return i
 }
 
+func HealthHandler(w http.ResponseWriter, _ *http.Request) {
+	w.Write([]byte("I'm healthy"))
+}
 
+func RobotsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprint(w, `User-agent: *
+Allow: /
+Allow: /dashboard
+Disallow: /api/endpoint/
+Disallow: /save
+
+Sitemap: `+domain+`/sitemap.xml`)
+}
+
+func SitemapHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/xml")
+	fmt.Fprint(w, `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>`+domain+`</loc>
+    </url>
+    <url>
+        <loc>`+domain+`/dashboard</loc>
+    </url>
+</urlset>`)
+}
