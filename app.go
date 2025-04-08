@@ -12,6 +12,7 @@ import (
 	"sync"
 	"math/rand"
 	"github.com/google/uuid"
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 type UserConfig struct {
@@ -30,14 +31,78 @@ var (
 	configs = map[string]UserConfig{}
 	mu      sync.RWMutex
 	domain  = "https://customize.fly.dev"
+	swagger *openapi3.T
 )
+
+func init() {
+	loader := openapi3.NewLoader()
+	doc, err := loader.LoadFromFile("templates/openapi.yaml")
+	if err != nil {
+		log.Printf("Error loading OpenAPI spec: %v", err)
+		// Try Docker path
+		doc, err = loader.LoadFromFile("/usr/local/share/customize/templates/openapi.yaml")
+		if err != nil {
+			log.Printf("Error loading OpenAPI spec from Docker path: %v", err)
+		}
+	}
+	swagger = doc
+}
 
 // Example endpoints configuration
 var exampleEndpoints = map[string]UserConfig{
+	"success": {
+		DelaySeconds: 1,
+		ResponseBody: `{"status": "success", "message": "This is a success example"}`,
+		StatusCode:   200,
+		HTTPMethod:   "GET",
+	},
 	"timeout": {
 		DelaySeconds: 10,
 		ResponseBody: `{"status": "success", "message": "This is a 10-second timeout example"}`,
 		StatusCode:   200,
+		HTTPMethod:   "GET",
+	},
+	"created": {
+		DelaySeconds: 1,
+		ResponseBody: `{"status": "created", "message": "Resource created successfully", "id": "123"}`,
+		StatusCode:   201,
+		HTTPMethod:   "POST",
+		CustomHeaders: "Location: /api/v1/resources/123",
+	},
+	"badrequest": {
+		DelaySeconds: 1,
+		ResponseBody: `{"status": "error", "message": "Invalid request parameters"}`,
+		StatusCode:   400,
+		HTTPMethod:   "GET",
+	},
+	"unauthorized": {
+		DelaySeconds: 1,
+		ResponseBody: `{"status": "error", "message": "Unauthorized access"}`,
+		StatusCode:   401,
+		HTTPMethod:   "GET",
+	},
+	"forbidden": {
+		DelaySeconds: 1,
+		ResponseBody: `{"status": "error", "message": "Access forbidden"}`,
+		StatusCode:   403,
+		HTTPMethod:   "GET",
+	},
+	"notfound": {
+		DelaySeconds: 1,
+		ResponseBody: `{"status": "error", "message": "Resource not found"}`,
+		StatusCode:   404,
+		HTTPMethod:   "GET",
+	},
+	"ratelimit": {
+		DelaySeconds: 1,
+		ResponseBody: `{"status": "error", "message": "Too many requests"}`,
+		StatusCode:   429,
+		HTTPMethod:   "GET",
+	},
+	"teapot": {
+		DelaySeconds: 1,
+		ResponseBody: `{"status": "teapot", "message": "I'm a teapot"}`,
+		StatusCode:   418,
 		HTTPMethod:   "GET",
 	},
 	"error": {
@@ -46,10 +111,10 @@ var exampleEndpoints = map[string]UserConfig{
 		StatusCode:   500,
 		HTTPMethod:   "GET",
 	},
-	"success": {
+	"serviceunavailable": {
 		DelaySeconds: 1,
-		ResponseBody: `{"status": "success", "message": "This is a success example"}`,
-		StatusCode:   200,
+		ResponseBody: `{"status": "error", "message": "Service temporarily unavailable"}`,
+		StatusCode:   503,
 		HTTPMethod:   "GET",
 	},
 }
@@ -62,8 +127,14 @@ func main() {
 
 	http.HandleFunc("/", LandingHandler)
 	http.HandleFunc("/dashboard", DashboardHandler)
+	
 	http.HandleFunc("/save", SaveHandler)
+
 	http.HandleFunc("/api/v1/", ApiHandler)
+	
+	http.HandleFunc("/examples", ExamplesHandler)
+	http.HandleFunc("/api/v1/spec/openapi.yaml", OpenAPIHandler)
+
 	http.HandleFunc("/health", HealthHandler)
 	http.HandleFunc("/robots.txt", RobotsHandler)
 	http.HandleFunc("/sitemap.xml", SitemapHandler)
@@ -90,6 +161,19 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		tmpl, err = template.ParseFiles("templates/dashboard.html")
 		if err != nil {
 			http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+	tmpl.Execute(w, nil)
+}
+
+func OpenAPIHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/yaml")
+	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/openapi.yaml")
+	if err != nil {
+		tmpl, err = template.ParseFiles("templates/openapi.yaml")
+		if err != nil {
+			http.Error(w, "Error loading OpenAPI spec: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 	}
@@ -289,4 +373,16 @@ func SitemapHandler(w http.ResponseWriter, r *http.Request) {
         <loc>`+domain+`/dashboard</loc>
     </url>
 </urlset>`)
+}
+
+func ExamplesHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/swagger.html")
+	if err != nil {
+		tmpl, err = template.ParseFiles("templates/swagger.html")
+		if err != nil {
+			http.Error(w, "Error loading examples template: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+	tmpl.Execute(w, nil)
 }

@@ -1,0 +1,218 @@
+openapi: 3.0.0
+info:
+  title: Customize Basic API Examples
+  description: A collection of basic example API endpoints for testing and development
+  version: 0.0.9
+servers:
+  - url: https://customize.fly.dev/api/v1
+    description: Production server
+  - url: https://localhost:8080/api/v1
+    description: Local server
+paths:
+  /examples/success:
+    get:
+      summary: Success response example
+      description: Returns a 200 OK response
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: This is a success example
+  /examples/created:
+    post:
+      summary: Created response example
+      description: Returns a 201 Created response with a Location header
+      responses:
+        '201':
+          description: Resource created successfully
+          headers:
+            Location:
+              description: URL of the created resource
+              schema:
+                type: string
+                example: /api/v1/resources/123
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: created
+                  message:
+                    type: string
+                    example: Resource created successfully
+                  id:
+                    type: string
+                    example: "123"
+  /examples/badrequest:
+    get:
+      summary: Bad Request example
+      description: Returns a 400 Bad Request response
+      responses:
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid request parameters
+  /examples/unauthorized:
+    get:
+      summary: Unauthorized example
+      description: Returns a 401 Unauthorized response
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access
+  /examples/forbidden:
+    get:
+      summary: Forbidden example
+      description: Returns a 403 Forbidden response
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Access forbidden
+  /examples/notfound:
+    get:
+      summary: Not Found example
+      description: Returns a 404 Not Found response
+      responses:
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Resource not found
+  /examples/ratelimit:
+    get:
+      summary: Rate Limit example
+      description: Returns a 429 Too Many Requests response
+      responses:
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Too many requests
+  /examples/teapot:
+    get:
+      summary: I'm a teapot example
+      description: Returns a 418 I'm a teapot status code
+      responses:
+        '418':
+          description: I'm a teapot
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: teapot
+                  message:
+                    type: string
+                    example: I'm a teapot
+  /examples/error:
+    get:
+      summary: Error response example
+      description: Returns a 500 Internal Server Error
+      responses:
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: This is an error example
+  /examples/serviceunavailable:
+    get:
+      summary: Service Unavailable example
+      description: Returns a 503 Service Unavailable response
+      responses:
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Service temporarily unavailable
+  /examples/timeout:
+    get:
+      summary: 10-second timeout example
+      description: Simulates a slow API response with a 10-second delay
+      responses:
+        '200':
+          description: Successful response after 10 seconds
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: This is a 10-second timeout example 
