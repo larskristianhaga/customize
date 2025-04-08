@@ -16,5 +16,6 @@ FROM debian:bookworm-slim
 
 COPY --from=builder /run-app /usr/local/bin/
 COPY --from=builder /usr/src/app/templates /usr/local/share/customize/templates
+COPY --from=builder /usr/src/app/files /usr/local/share/customize/files
 
 CMD ["run-app"]

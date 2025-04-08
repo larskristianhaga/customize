@@ -36,11 +36,11 @@ var (
 
 func init() {
 	loader := openapi3.NewLoader()
-	doc, err := loader.LoadFromFile("templates/openapi.yaml")
+	doc, err := loader.LoadFromFile("files/openapi.yml")
 	if err != nil {
 		log.Printf("Error loading OpenAPI spec: %v", err)
 		// Try Docker path
-		doc, err = loader.LoadFromFile("/usr/local/share/customize/templates/openapi.yaml")
+		doc, err = loader.LoadFromFile("/usr/local/share/customize/files/openapi.yml")
 		if err != nil {
 			log.Printf("Error loading OpenAPI spec from Docker path: %v", err)
 		}
@@ -133,7 +133,7 @@ func main() {
 	http.HandleFunc("/api/v1/", ApiHandler)
 	
 	http.HandleFunc("/examples", ExamplesHandler)
-	http.HandleFunc("/api/v1/spec/openapi.yaml", OpenAPIHandler)
+	http.HandleFunc("/api/v1/spec/openapi.yml", OpenAPIHandler)
 
 	http.HandleFunc("/health", HealthHandler)
 	http.HandleFunc("/robots.txt", RobotsHandler)
@@ -168,10 +168,10 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func OpenAPIHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/yaml")
-	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/openapi.yaml")
+	w.Header().Set("Content-Type", "application/yml")
+	tmpl, err := template.ParseFiles("/usr/local/share/customize/files/openapi.yml")
 	if err != nil {
-		tmpl, err = template.ParseFiles("templates/openapi.yaml")
+		tmpl, err = template.ParseFiles("files/openapi.yml")
 		if err != nil {
 			http.Error(w, "Error loading OpenAPI spec: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -376,9 +376,9 @@ func SitemapHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ExamplesHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/swagger.html")
+	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/basic-api-examples-documentation.html")
 	if err != nil {
-		tmpl, err = template.ParseFiles("templates/swagger.html")
+		tmpl, err = template.ParseFiles("templates/basic-api-examples-documentation.html")
 		if err != nil {
 			http.Error(w, "Error loading examples template: "+err.Error(), http.StatusInternalServerError)
 			return
