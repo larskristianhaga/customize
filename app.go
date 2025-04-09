@@ -2,28 +2,27 @@ package main
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"html/template"
+	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
-	"log"
-	"time"	
 	"strings"
 	"sync"
-	"math/rand"
-	"github.com/google/uuid"
-	"github.com/getkin/kin-openapi/openapi3"
+	"time"
 )
 
 type UserConfig struct {
-	DelaySeconds      int      `json:"delay_seconds"`
-	ResponseBody      string   `json:"response_body"`
-	StatusCode        int      `json:"status_code"`
-	HangForever       bool     `json:"hang_forever"`
-	HTTPMethod        string   `json:"http_method"`
-	RandomDelay       bool     `json:"random_delay"`
-	CustomHeaders     string   `json:"custom_headers"`
-	FailureRate       int      `json:"failure_rate"`
+	DelaySeconds        int    `json:"delay_seconds"`
+	ResponseBody        string `json:"response_body"`
+	StatusCode          int    `json:"status_code"`
+	HangForever         bool   `json:"hang_forever"`
+	HTTPMethod          string `json:"http_method"`
+	RandomDelay         bool   `json:"random_delay"`
+	CustomHeaders       string `json:"custom_headers"`
+	FailureRate         int    `json:"failure_rate"`
 	ResponseVariability string `json:"response_variability"`
 }
 
@@ -31,24 +30,8 @@ var (
 	configs = map[string]UserConfig{}
 	mu      sync.RWMutex
 	domain  = "https://customize.fly.dev"
-	swagger *openapi3.T
 )
 
-func init() {
-	loader := openapi3.NewLoader()
-	doc, err := loader.LoadFromFile("files/openapi.yml")
-	if err != nil {
-		log.Printf("Error loading OpenAPI spec: %v", err)
-		// Try Docker path
-		doc, err = loader.LoadFromFile("/usr/local/share/customize/files/openapi.yml")
-		if err != nil {
-			log.Printf("Error loading OpenAPI spec from Docker path: %v", err)
-		}
-	}
-	swagger = doc
-}
-
-// Example endpoints configuration
 var exampleEndpoints = map[string]UserConfig{
 	"success": {
 		DelaySeconds: 1,
@@ -63,10 +46,10 @@ var exampleEndpoints = map[string]UserConfig{
 		HTTPMethod:   "GET",
 	},
 	"created": {
-		DelaySeconds: 1,
-		ResponseBody: `{"status": "created", "message": "Resource created successfully", "id": "42"}`,
-		StatusCode:   201,
-		HTTPMethod:   "POST",
+		DelaySeconds:  1,
+		ResponseBody:  `{"status": "created", "message": "Resource created successfully", "id": "42"}`,
+		StatusCode:    201,
+		HTTPMethod:    "POST",
 		CustomHeaders: "Location: /api/v1/resources/42",
 	},
 	"badrequest": {
@@ -127,11 +110,11 @@ func main() {
 
 	http.HandleFunc("/", LandingHandler)
 	http.HandleFunc("/dashboard", DashboardHandler)
-	
+
 	http.HandleFunc("/save", SaveHandler)
 
 	http.HandleFunc("/api/v1/", ApiHandler)
-	
+
 	http.HandleFunc("/examples", ExamplesHandler)
 	http.HandleFunc("/api/v1/spec/openapi.yml", OpenAPIHandler)
 
@@ -152,7 +135,7 @@ func LandingHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	tmpl.Execute(w, nil)
+	_ = tmpl.Execute(w, nil)
 }
 
 func DashboardHandler(w http.ResponseWriter, r *http.Request) {
@@ -164,7 +147,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	tmpl.Execute(w, nil)
+	_ = tmpl.Execute(w, nil)
 }
 
 func OpenAPIHandler(w http.ResponseWriter, r *http.Request) {
@@ -177,13 +160,13 @@ func OpenAPIHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	tmpl.Execute(w, nil)
+	_ = tmpl.Execute(w, nil)
 }
 
 func ApiHandler(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/")
 	parts := strings.Split(path, "/")
-	
+
 	if len(parts) < 2 {
 		http.Error(w, "Invalid API path", http.StatusBadRequest)
 		return
@@ -277,14 +260,14 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	userID := uuid.New().String()
 	cfg := UserConfig{
-		DelaySeconds:      atoi(r.FormValue("delay_seconds")),
-		ResponseBody:      r.FormValue("response_body"),
-		StatusCode:        atoi(r.FormValue("status_code")),
-		HangForever:       r.FormValue("hang_forever") == "on",
-		HTTPMethod:        r.FormValue("http_method"),
-		RandomDelay:       r.FormValue("random_delay") == "on",
-		CustomHeaders:     r.FormValue("custom_headers"),
-		FailureRate:       atoi(r.FormValue("failure_rate")),
+		DelaySeconds:        atoi(r.FormValue("delay_seconds")),
+		ResponseBody:        r.FormValue("response_body"),
+		StatusCode:          atoi(r.FormValue("status_code")),
+		HangForever:         r.FormValue("hang_forever") == "on",
+		HTTPMethod:          r.FormValue("http_method"),
+		RandomDelay:         r.FormValue("random_delay") == "on",
+		CustomHeaders:       r.FormValue("custom_headers"),
+		FailureRate:         atoi(r.FormValue("failure_rate")),
 		ResponseVariability: r.FormValue("response_variability"),
 	}
 
@@ -346,12 +329,12 @@ func atoi(s string) int {
 }
 
 func HealthHandler(w http.ResponseWriter, _ *http.Request) {
-	w.Write([]byte("I'm healthy"))
+	_, _ = w.Write([]byte("I'm healthy"))
 }
 
 func RobotsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
-	fmt.Fprint(w, `User-agent: *
+	_, _ = fmt.Fprint(w, `User-agent: *
 Allow: /
 Allow: /dashboard
 Disallow: /api/v1/
@@ -364,7 +347,7 @@ Sitemap: `+domain+`/sitemap.xml`)
 
 func SitemapHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/xml")
-	fmt.Fprint(w, `<?xml version="1.0" encoding="UTF-8"?>
+	_, _ = fmt.Fprint(w, `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>`+domain+`</loc>
@@ -384,5 +367,5 @@ func ExamplesHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	tmpl.Execute(w, nil)
+	_ = tmpl.Execute(w, nil)
 }
