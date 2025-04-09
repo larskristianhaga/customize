@@ -126,7 +126,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
-func LandingHandler(w http.ResponseWriter, r *http.Request) {
+func LandingHandler(w http.ResponseWriter, _ *http.Request) {
 	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/landing.html")
 	if err != nil {
 		tmpl, err = template.ParseFiles("templates/landing.html")
@@ -138,7 +138,7 @@ func LandingHandler(w http.ResponseWriter, r *http.Request) {
 	_ = tmpl.Execute(w, nil)
 }
 
-func DashboardHandler(w http.ResponseWriter, r *http.Request) {
+func DashboardHandler(w http.ResponseWriter, _ *http.Request) {
 	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/dashboard.html")
 	if err != nil {
 		tmpl, err = template.ParseFiles("templates/dashboard.html")
@@ -150,7 +150,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	_ = tmpl.Execute(w, nil)
 }
 
-func OpenAPIHandler(w http.ResponseWriter, r *http.Request) {
+func OpenAPIHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/yml")
 	tmpl, err := template.ParseFiles("/usr/local/share/customize/files/openapi.yml")
 	if err != nil {
@@ -332,7 +332,7 @@ func HealthHandler(w http.ResponseWriter, _ *http.Request) {
 	_, _ = w.Write([]byte("I'm healthy"))
 }
 
-func RobotsHandler(w http.ResponseWriter, r *http.Request) {
+func RobotsHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	_, _ = fmt.Fprint(w, `User-agent: *
 Allow: /
@@ -345,7 +345,7 @@ Disallow: /save
 Sitemap: `+domain+`/sitemap.xml`)
 }
 
-func SitemapHandler(w http.ResponseWriter, r *http.Request) {
+func SitemapHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/xml")
 	_, _ = fmt.Fprint(w, `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -358,7 +358,7 @@ func SitemapHandler(w http.ResponseWriter, r *http.Request) {
 </urlset>`)
 }
 
-func ExamplesHandler(w http.ResponseWriter, r *http.Request) {
+func ExamplesHandler(w http.ResponseWriter, _ *http.Request) {
 	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/basic-api-examples-documentation.html")
 	if err != nil {
 		tmpl, err = template.ParseFiles("templates/basic-api-examples-documentation.html")
