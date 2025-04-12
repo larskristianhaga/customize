@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CustomizeAPI - API Testing</title>
+    <title>Customize - API Testing</title>
     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <style>
@@ -44,385 +44,259 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">🛠️ CustomizeAPI Dashboard</h1>
-            <p class="text-gray-600 mb-4">Configure and Test Your API Endpoints</p>
-            <a href="https://www.buymeacoffee.com/larskristianhaga" target="_blank" rel="noopener noreferrer" 
-               class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5a1 1 0 102 0V7a1 1 0 10-2 0v4zm1-6a1 1 0 100-2 1 1 0 000 2z"/>
-                </svg>
-                Buy Me a Beer
-            </a>
-        </div>
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Customize Dashboard</h1>
+    </div>
 
-        <!-- Main Navigation -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <div class="flex space-x-4 border-b pb-4">
-                <button class="tab-button active px-6 py-2 rounded-lg font-medium" onclick="switchTab('config')">
-                    ⚙️ Configuration
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <form hx-post="/save" hx-target="#status" hx-swap="innerHTML">
+            <div class="mb-6">
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 font-medium">
+                    Create API Endpoint
                 </button>
-                <button class="tab-button px-6 py-2 rounded-lg font-medium" onclick="switchTab('docs')">
-                    📚 Documentation
-                </button>
+                <a href="https://www.buymeacoffee.com/larskristianhaga" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5a1 1 0 102 0V7a1 1 0 10-2 0v4zm1-6a1 1 0 100-2 1 1 0 000 2z"/>
+                    </svg>
+                    Buy Me a Beer
+                </a>
             </div>
-
-            <!-- Configuration Tab -->
-            <div id="config" class="tab-content active mt-6">
-                <form hx-post="/save" hx-target="#status" hx-swap="innerHTML">
-                    <div class="mb-6">
-                        <button class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 font-medium">
-                            Create API Endpoint
-                        </button>
+            <div id="status" class="mb-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm font-medium text-gray-700">Your API Endpoint:</p>
+                    <div class="mt-2 bg-gray-100 p-3 rounded-lg">
+                        <code class="text-blue-600 break-all"></code>
                     </div>
-                    <div id="status" class="mb-6">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm font-medium text-gray-700">Your API Endpoint:</p>
-                            <div class="mt-2 bg-gray-100 p-3 rounded-lg">
-                                <code class="text-blue-600 break-all"></code>
-                            </div>
-                            <div class="mt-2 text-sm text-gray-600">
-                                <p>Example usage:</p>
-                                <pre class="mt-1 bg-gray-100 p-2 rounded text-sm">
+                    <div class="mt-2 text-sm text-gray-600">
+                        <p>Example usage:</p>
+                        <pre class="mt-1 bg-gray-100 p-2 rounded text-sm">
 curl -X <span class="method-placeholder">METHOD</span> <span class="url-placeholder">URL</span>
                                 </pre>
-                            </div>
-                        </div>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Basic Settings -->
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-semibold mb-4">Basic Settings</h3>
-                            <div>
-                                <label class="block mb-2 font-medium">HTTP Method
-                                    <select name="http_method" class="w-full border p-2 rounded mt-1">
-                                        <option value="GET">GET</option>
-                                        <option value="POST">POST</option>
-                                        <option value="PUT">PUT</option>
-                                        <option value="DELETE">DELETE</option>
-                                        <option value="PATCH">PATCH</option>
-                                        <option value="HEAD">HEAD</option>
-                                        <option value="OPTIONS">OPTIONS</option>
-                                    </select>
-                                </label>
-                            </div>
-                            <div>
-                                <label class="block mb-2 font-medium">Delay (seconds)
-                                    <input name="delay_seconds" type="number" value="0" min="0" step="0.1"
-                                        class="w-full border p-2 rounded mt-1" />
-                                </label>
-                            </div>
-                            <div class="relative">
-                                <label class="block mb-2 font-medium">Content-Type
-                                    <input name="content_type" type="text" 
-                                        class="w-full border p-2 rounded mt-1" 
-                                        placeholder="e.g., application/json"
-                                        oninput="showContentTypeSuggestions(this.value)"
-                                        onfocus="showContentTypeSuggestions(this.value)" />
-                                    <div class="suggestions" id="contentTypeSuggestions"></div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Response Settings -->
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-semibold mb-4">Response Settings</h3>
-                            <div>
-                                <label class="block mb-2 font-medium">Status Code
-                                    <select name="status_code" class="w-full border p-2 rounded mt-1">
-                                        <optgroup label="Success (2xx)">
-                                            <option value="200">200 OK</option>
-                                            <option value="201">201 Created</option>
-                                            <option value="202">202 Accepted</option>
-                                            <option value="204">204 No Content</option>
-                                        </optgroup>
-                                        <optgroup label="Client Error (4xx)">
-                                            <option value="400">400 Bad Request</option>
-                                            <option value="401">401 Unauthorized</option>
-                                            <option value="403">403 Forbidden</option>
-                                            <option value="404">404 Not Found</option>
-                                            <option value="405">405 Method Not Allowed</option>
-                                            <option value="408">408 Request Timeout</option>
-                                            <option value="409">409 Conflict</option>
-                                            <option value="413">413 Payload Too Large</option>
-                                            <option value="415">415 Unsupported Media Type</option>
-                                            <option value="418">418 I'm a teapot</option>
-                                            <option value="429">429 Too Many Requests</option>
-                                        </optgroup>
-                                        <optgroup label="Server Error (5xx)">
-                                            <option value="500">500 Internal Server Error</option>
-                                            <option value="501">501 Not Implemented</option>
-                                            <option value="502">502 Bad Gateway</option>
-                                            <option value="503">503 Service Unavailable</option>
-                                            <option value="504">504 Gateway Timeout</option>
-                                            <option value="507">507 Insufficient Storage</option>
-                                            <option value="508">508 Loop Detected</option>
-                                            <option value="511">511 Network Authentication Required</option>
-                                        </optgroup>
-                                    </select>
-                                </label>
-                            </div>
-                            <div>
-                                <label class="block mb-2 font-medium">Response Body
-                                    <div class="flex space-x-2 mb-2">
-                                        <button type="button" onclick="generateJSONResponse()" 
-                                            class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
-                                            JSON
-                                        </button>
-                                        <button type="button" onclick="generateXMLResponse()" 
-                                            class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
-                                            XML
-                                        </button>
-                                        <button type="button" onclick="clearResponseBody()" 
-                                            class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
-                                            Clear
-                                        </button>
-                                    </div>
-                                    <textarea name="response_body" class="w-full border p-2 rounded mt-1 h-24"
-                                        placeholder="Enter your custom response body">{"status": "success", "message": "Request processed successfully", "timestamp": "{{.Timestamp}}"}</textarea>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Advanced Settings -->
-                    <div class="mt-8 border-t pt-6">
-                        <h3 class="text-lg font-semibold mb-4">Advanced Settings</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block mb-2 font-medium">Custom Headers
-                                        <textarea name="custom_headers" class="w-full border p-2 rounded mt-1 h-24"
-                                            placeholder="X-Custom-Header: value"></textarea>
-                                    </label>
-                                </div>
-                                <div>
-                                    <label class="block mb-2 font-medium">Response Time Variability
-                                        <select name="response_variability" class="w-full border p-2 rounded mt-1">
-                                            <option value="none">None</option>
-                                            <option value="low">Low (±10%)</option>
-                                            <option value="medium">Medium (±25%)</option>
-                                            <option value="high">High (±50%)</option>
-                                        </select>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block mb-2 font-medium">Failure Rate
-                                        <input type="range" name="failure_rate" min="0" max="100" value="0" 
-                                            class="w-full mt-1" oninput="updateFailureRate(this.value)" />
-                                        <span id="failureRateValue" class="text-sm text-gray-600">0%</span>
-                                    </label>
-                                </div>
-                                <div id="failureResponseContainer" class="disabled">
-                                    <label class="block mb-2 font-medium">Failure Response Body
-                                        <textarea name="failure_response_body" class="w-full border p-2 rounded mt-1 h-24"
-                                            placeholder="Enter response body for failed requests">{"status": "error", "message": "Request failed", "timestamp": "{{.Timestamp}}"}</textarea>
-                                    </label>
-                                </div>
-                                <div class="space-y-2">
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" name="hang_forever" class="rounded" />
-                                        <span>Hang Forever</span>
-                                    </label>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" name="random_delay" class="rounded" />
-                                        <span>Random Delay</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
 
-            <!-- Documentation Tab -->
-            <div id="docs" class="tab-content mt-6">
-                <div class="prose max-w-none">
-                    <h3 class="text-xl font-bold mb-4">📚 Getting Started</h3>
-                    <p class="mb-4">CustomizeAPI allows you to create and configure custom API endpoints for testing and debugging purposes. Follow these steps to get started:</p>
-                    
-                    <div class="bg-gray-50 p-6 rounded-lg mb-6">
-                        <h4 class="text-lg font-semibold mb-2">1. Configure Your Endpoint</h4>
-                        <ul class="list-disc pl-6 mb-4">
-                            <li>Set basic parameters like HTTP method, delay, and status code</li>
-                            <li>Customize the response body and Content-Type</li>
-                            <li>Click "Create API Endpoint" to generate your unique endpoint</li>
-                        </ul>
-                        
-                        <h4 class="text-lg font-semibold mb-2">2. Use Your Endpoint</h4>
-                        <div class="bg-gray-100 p-4 rounded">
-                            <p class="text-sm text-gray-600 mb-2">Your endpoint will be automatically generated and displayed after configuration. Example:</p>
-                            <code class="text-blue-600">http://customize.fly.dev/api/v1/custom/b25e373b-aa53-4dd0-886a-38f51019d66b</code>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold mb-4">Basic</h3>
+                    <div>
+                        <label class="block mb-2 font-medium">HTTP Method
+                            <select name="http_method" class="w-full border p-2 rounded mt-1">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="DELETE">DELETE</option>
+                                <option value="PATCH">PATCH</option>
+                                <option value="HEAD">HEAD</option>
+                                <option value="OPTIONS">OPTIONS</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="block mb-2 font-medium">Delay (seconds)
+                            <input name="delay_seconds" type="number" value="0" min="0" step="0.1"
+                                   class="w-full border p-2 rounded mt-1"/>
+                        </label>
+                    </div>
+                    <div class="relative">
+                        <label class="block mb-2 font-medium">Content-Type
+                            <input name="content_type" type="text"
+                                   class="w-full border p-2 rounded mt-1"
+                                   placeholder="e.g., application/json"
+                                   oninput="showContentTypeSuggestions(this.value)"
+                                   onfocus="showContentTypeSuggestions(this.value)"/>
+                            <div class="suggestions" id="contentTypeSuggestions"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold mb-4">Response Settings</h3>
+                    <div>
+                        <label class="block mb-2 font-medium">Status Code
+                            <select name="status_code" class="w-full border p-2 rounded mt-1">
+                                <optgroup label="Success (2xx)">
+                                    <option value="200">200 OK</option>
+                                    <option value="201">201 Created</option>
+                                    <option value="202">202 Accepted</option>
+                                    <option value="204">204 No Content</option>
+                                </optgroup>
+                                <optgroup label="Client Error (4xx)">
+                                    <option value="400">400 Bad Request</option>
+                                    <option value="401">401 Unauthorized</option>
+                                    <option value="403">403 Forbidden</option>
+                                    <option value="404">404 Not Found</option>
+                                    <option value="405">405 Method Not Allowed</option>
+                                    <option value="408">408 Request Timeout</option>
+                                    <option value="409">409 Conflict</option>
+                                    <option value="413">413 Payload Too Large</option>
+                                    <option value="415">415 Unsupported Media Type</option>
+                                    <option value="418">418 I'm a teapot</option>
+                                    <option value="429">429 Too Many Requests</option>
+                                </optgroup>
+                                <optgroup label="Server Error (5xx)">
+                                    <option value="500">500 Internal Server Error</option>
+                                    <option value="501">501 Not Implemented</option>
+                                    <option value="502">502 Bad Gateway</option>
+                                    <option value="503">503 Service Unavailable</option>
+                                    <option value="504">504 Gateway Timeout</option>
+                                    <option value="507">507 Insufficient Storage</option>
+                                    <option value="508">508 Loop Detected</option>
+                                    <option value="511">511 Network Authentication Required</option>
+                                </optgroup>
+                            </select>
+                        </label>
+                    </div>
+                    <div>
+                        <label for="response_body" class="block mb-2 font-medium">Response Body</label>
+                        <div class="flex space-x-2 mb-2">
+                            <button type="button" onclick="generateJSONResponse()"
+                                    class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
+                                JSON
+                            </button>
+                            <button type="button" onclick="generateXMLResponse()"
+                                    class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
+                                XML
+                            </button>
+                            <button type="button" onclick="clearResponseBody()"
+                                    class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
+                                Clear
+                            </button>
+                        </div>
+                        <textarea id="response_body" name="response_body" class="w-full border p-2 rounded mt-1 h-48"
+                                  placeholder="Enter your custom response body">pong</textarea>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 border-t pt-6">
+                <h3 class="text-lg font-semibold mb-4">Advanced</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block mb-2 font-medium">Custom Headers
+                                <textarea name="custom_headers" class="w-full border p-2 rounded mt-1 h-24"
+                                          placeholder="X-Custom-Header: value"></textarea>
+                            </label>
                         </div>
                     </div>
-
-                    <h3 class="text-xl font-bold mb-4">🔧 Features</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                            <h4 class="font-semibold mb-2">⏱️ Delay Simulation</h4>
-                            <p>Configure response delays to test your application's behavior under various latency conditions.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block mb-2 font-medium">Failure Rate
+                                <input type="range" name="failure_rate" min="0" max="100" value="0"
+                                       class="w-full mt-1" oninput="updateFailureRate(this.value)"/>
+                                <span id="failureRateValue" class="text-sm text-gray-600">0%</span>
+                            </label>
                         </div>
-                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                            <h4 class="font-semibold mb-2">Status Codes</h4>
-                            <p>Simulate different HTTP status codes to test your error handling and recovery mechanisms.</p>
+                        <div id="failureResponseContainer" class="disabled">
+                            <label class="block mb-2 font-medium">Failure Response Body
+                                <textarea name="failure_response_body" class="w-full border p-2 rounded mt-1 h-24"
+                                          placeholder="Enter response body for failed requests">{"status": "error", "message": "Request failed", "timestamp": "{{.Timestamp}}"}</textarea>
+                            </label>
                         </div>
-                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                            <h4 class="font-semibold mb-2">📝 Custom Responses</h4>
-                            <p>Define custom response bodies and Content-Type headers to match your testing needs.</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                            <h4 class="font-semibold mb-2">🔄 HTTP Methods</h4>
-                            <p>Support for GET, POST, PUT, DELETE, PATCH, HEAD, and OPTIONS methods.</p>
-                        </div>
-                    </div>
-
-                    <h3 class="text-xl font-bold mt-8 mb-4">💡 Use Cases</h3>
-                    <ul class="list-disc pl-6 space-y-2 mb-6">
-                        <li>Test timeout handling in your applications</li>
-                        <li>Simulate slow API responses</li>
-                        <li>Debug error handling mechanisms</li>
-                        <li>API integration testing</li>
-                        <li>Mock API responses for development</li>
-                    </ul>
-
-                    <h3 class="text-xl font-bold mt-8 mb-4">🔐 Premium Features</h3>
-                    <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
-                        <p class="mb-4">Support the project to unlock these premium features:</p>
-                        <ul class="list-disc pl-6 space-y-2">
-                            <li>Custom Headers - Add any custom headers to your responses</li>
-                            <li>Response Time Variability - Add random variations to response times</li>
-                            <li>Failure Rate - Configure random failures with custom error responses</li>
-                            <li>Hang Forever - Simulate never-ending requests</li>
-                            <li>Random Delay - Add unpredictable delays to responses</li>
-                        </ul>
-                        <div class="mt-4 text-center">
-                            <a href="https://www.buymeacoffee.com/larskristianhaga" target="_blank" rel="noopener noreferrer" 
-                               class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
-                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5a1 1 0 102 0V7a1 1 0 10-2 0v4zm1-6a1 1 0 100-2 1 1 0 000 2z"/>
-                                </svg>
-                                Unlock Premium Features
-                            </a>
+                        <div class="space-y-2">
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="hang_forever" class="rounded"/>
+                                <span>Hang Forever</span>
+                            </label>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
+</div>
 
-    <script>
-        const contentTypeSuggestions = [
-            "application/json",
-            "application/xml",
-            "text/plain",
-            "text/html",
-            "application/javascript",
-            "application/pdf",
-            "image/jpeg",
-            "image/png",
-            "image/gif",
-            "application/octet-stream",
-            "multipart/form-data",
-            "application/x-www-form-urlencoded"
-        ];
+<script>
+    const contentTypeSuggestions = [
+        "application/json",
+        "application/xml",
+        "text/plain",
+        "text/html",
+        "application/javascript",
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "application/octet-stream",
+        "multipart/form-data",
+        "application/x-www-form-urlencoded"
+    ];
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
+    function updateFailureRate(value) {
+        document.getElementById('failureRateValue').textContent = value + '%';
+        const failureResponseContainer = document.getElementById('failureResponseContainer');
+        if (value === '0') {
+            failureResponseContainer.classList.add('disabled');
+        } else {
+            failureResponseContainer.classList.remove('disabled');
+        }
+    }
+
+    document.querySelector('input[name="failure_rate"]').addEventListener('input', function(e) {
+        updateFailureRate(e.target.value);
+    });
+
+    function showContentTypeSuggestions(value) {
+        const suggestionsDiv = document.getElementById('contentTypeSuggestions');
+        suggestionsDiv.innerHTML = '';
+
+        if (!value) {
+            suggestionsDiv.style.display = 'none';
+            return;
+        }
+
+        const filtered = contentTypeSuggestions.filter(type =>
+            type.toLowerCase().includes(value.toLowerCase())
+        );
+
+        if (filtered.length > 0) {
+            filtered.forEach(type => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = type;
+                div.onclick = () => {
+                    document.querySelector('input[name="content_type"]').value = type;
+                    suggestionsDiv.style.display = 'none';
+                };
+                suggestionsDiv.appendChild(div);
             });
-            document.getElementById(tabName).classList.add('active');
-            
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-            event.target.classList.add('active');
+            suggestionsDiv.style.display = 'block';
+        } else {
+            suggestionsDiv.style.display = 'none';
         }
+    }
 
-        function updateFailureRate(value) {
-            document.getElementById('failureRateValue').textContent = value + '%';
-            const failureResponseContainer = document.getElementById('failureResponseContainer');
-            if (value === '0') {
-                failureResponseContainer.classList.add('disabled');
-            } else {
-                failureResponseContainer.classList.remove('disabled');
-            }
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.relative')) {
+            document.getElementById('contentTypeSuggestions').style.display = 'none';
         }
+    });
 
-        document.querySelector('input[name="failure_rate"]').addEventListener('input', function(e) {
-            updateFailureRate(e.target.value);
-        });
+    function clearResponseBody() {
+        document.querySelector('textarea[name="response_body"]').value = '';
+    }
 
-        function showContentTypeSuggestions(value) {
-            const suggestionsDiv = document.getElementById('contentTypeSuggestions');
-            suggestionsDiv.innerHTML = '';
-            
-            if (!value) {
-                suggestionsDiv.style.display = 'none';
-                return;
-            }
+    function generateJSONResponse() {
+        const jsonResponse = {
+            "success": true,
+            "message": "Request processed successfully",
+        };
+        document.querySelector('textarea[name="response_body"]').value = JSON.stringify(jsonResponse, null, 2);
+    }
 
-            const filtered = contentTypeSuggestions.filter(type => 
-                type.toLowerCase().includes(value.toLowerCase())
-            );
-
-            if (filtered.length > 0) {
-                filtered.forEach(type => {
-                    const div = document.createElement('div');
-                    div.className = 'suggestion-item';
-                    div.textContent = type;
-                    div.onclick = () => {
-                        document.querySelector('input[name="content_type"]').value = type;
-                        suggestionsDiv.style.display = 'none';
-                    };
-                    suggestionsDiv.appendChild(div);
-                });
-                suggestionsDiv.style.display = 'block';
-            } else {
-                suggestionsDiv.style.display = 'none';
-            }
-        }
-
-        // Close suggestions when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.relative')) {
-                document.getElementById('contentTypeSuggestions').style.display = 'none';
-            }
-        });
-
-        function clearResponseBody() {
-            document.querySelector('textarea[name="response_body"]').value = '';
-        }
-
-        function generateJSONResponse() {
-            const timestamp = new Date().toISOString();
-            const jsonResponse = {
-                status: "success",
-                message: "Request processed successfully",
-                timestamp: timestamp
-            };
-            document.querySelector('textarea[name="response_body"]').value = JSON.stringify(jsonResponse, null, 2);
-        }
-
-        function generateXMLResponse() {
-            const timestamp = new Date().toISOString();
-            const xmlResponse = `<?xml version="1.0" encoding="UTF-8"?>
+    function generateXMLResponse() {
+        const xmlResponse = `<?xml version="1.0" encoding="UTF-8"?>
 <response>
-    <status>success</status>
-    <message>Request processed successfully</message>
-    <timestamp>${timestamp}</timestamp>
+<success>true</success>
+<message>Request processed successfully</message>
 </response>`;
-            document.querySelector('textarea[name="response_body"]').value = xmlResponse;
-        }
-
-        // Initialize failure response container as disabled
-        document.addEventListener('DOMContentLoaded', function() {
-            updateFailureRate('0');
-        });
-    </script>
+        document.querySelector('textarea[name="response_body"]').value = xmlResponse;
+    }
+</script>
 </body>
 </html> 
