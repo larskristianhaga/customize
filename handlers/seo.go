@@ -7,19 +7,18 @@ import (
 
 var domain = "https://customize.fly.dev"
 
-func HealthHandler(w http.ResponseWriter, _ *http.Request) {
-	_, _ = w.Write([]byte("I'm healthy"))
-}
-
 func RobotsHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	_, _ = fmt.Fprint(w, `User-agent: *
 Allow: /
 Allow: /dashboard
+Allow: /basic-api-examples
+
 Disallow: /api/v1/
 Disallow: /api/v1/examples/
 Disallow: /api/v1/custom/
 Disallow: /save
+Disallow: /health
 
 Sitemap: `+domain+`/sitemap.xml`)
 }
@@ -33,6 +32,9 @@ func SitemapHandler(w http.ResponseWriter, _ *http.Request) {
     </url>
     <url>
         <loc>`+domain+`/dashboard</loc>
+    </url>
+    <url>
+        <loc>`+domain+`/basic-api-examples</loc>
     </url>
 </urlset>`)
 }
