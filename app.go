@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/larskristianhaga/customize/handlers"
+	"github.com/larskristianhaga/customize/middleware"
 )
 
 func main() {
@@ -14,21 +15,24 @@ func main() {
 		port = "8080"
 	}
 
-	http.HandleFunc("/", handlers.LandingHandler)
+	// Create a new ServeMux
+	mux := http.NewServeMux()
 
-	http.HandleFunc("/dashboard", handlers.DashboardHandler)
-	http.HandleFunc("/save", handlers.SaveHandler)
-	http.HandleFunc("/api/v1/custom/", handlers.CustomApiHandler)
+	// Register all handlers
+	mux.HandleFunc("/", handlers.LandingHandler)
+	mux.HandleFunc("/dashboard", handlers.DashboardHandler)
+	mux.HandleFunc("/save", handlers.SaveHandler)
+	mux.HandleFunc("/api/v1/custom/", handlers.CustomApiHandler)
+	mux.HandleFunc("/basic-api-examples", handlers.BasicApiExamplesHandler)
+	mux.HandleFunc("/api/v1/spec/openapi.yml", handlers.OpenAPIHandler)
+	mux.HandleFunc("/api/v1/examples/", handlers.ExamplesApiHandler)
+	mux.HandleFunc("/health", handlers.HealthHandler)
+	mux.HandleFunc("/robots.txt", handlers.RobotsHandler)
+	mux.HandleFunc("/sitemap.xml", handlers.SitemapHandler)
 
-	http.HandleFunc("/basic-api-examples", handlers.BasicApiExamplesHandler)
-	http.HandleFunc("/api/v1/spec/openapi.yml", handlers.OpenAPIHandler)
-	http.HandleFunc("/api/v1/examples/", handlers.ExamplesApiHandler)
-
-	http.HandleFunc("/health", handlers.HealthHandler)
-
-	http.HandleFunc("/robots.txt", handlers.RobotsHandler)
-	http.HandleFunc("/sitemap.xml", handlers.SitemapHandler)
+	// Wrap the mux with the logging middleware
+	handler := middleware.LoggingMiddleware(mux)
 
 	log.Println("App live and listening on port:", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
