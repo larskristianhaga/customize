@@ -93,13 +93,14 @@ curl -X <span class="method-placeholder">METHOD</span> <span class="url-placehol
                     </div>
                     <div>
                         <label class="block mb-2 font-medium">Delay (seconds)
-                            <input name="delay_seconds" type="number" value="0" min="0" step="0.1"
+                            <input name="delay_seconds" type="number" value="1" min="0" step="0.1"
                                    class="w-full border p-2 rounded mt-1"/>
                         </label>
                     </div>
                     <div class="relative">
                         <label class="block mb-2 font-medium">Content-Type
                             <input name="content_type" type="text"
+                                   value="text/plain"
                                    class="w-full border p-2 rounded mt-1"
                                    placeholder="e.g., application/json"
                                    oninput="showContentTypeSuggestions(this.value)"
@@ -163,7 +164,7 @@ curl -X <span class="method-placeholder">METHOD</span> <span class="url-placehol
                             </button>
                         </div>
                         <textarea id="response_body" name="response_body" class="w-full border p-2 rounded mt-1 h-48"
-                                  placeholder="Enter your custom response body">pong</textarea>
+                                  placeholder="Enter your response body">pong</textarea>
 
                     </div>
                 </div>
@@ -190,14 +191,11 @@ curl -X <span class="method-placeholder">METHOD</span> <span class="url-placehol
                         </div>
                         <div id="failureResponseContainer" class="disabled">
                             <label class="block mb-2 font-medium">Failure Response Body
-                                <textarea name="failure_response_body" class="w-full border p-2 rounded mt-1 h-24"
-                                          placeholder="Enter response body for failed requests">{"status": "error", "message": "Request failed", "timestamp": "{{.Timestamp}}"}</textarea>
-                            </label>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="flex items-center space-x-2">
-                                <input type="checkbox" name="hang_forever" class="rounded"/>
-                                <span>Hang Forever</span>
+                                <textarea name="failure_response_body" class="w-full border p-2 rounded mt-1 h-48"
+                                          placeholder="Enter response body for failed requests">{
+    "success": false,
+    "message": "Request failed"
+}</textarea>
                             </label>
                         </div>
                     </div>
