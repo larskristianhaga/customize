@@ -1,6 +1,6 @@
 FROM golang:1.24-bookworm AS builder
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY go.mod go.sum ./
 
@@ -10,14 +10,16 @@ ENV CGO_ENABLED=1
 
 COPY . .
 
-RUN go build -v -o /run-app .
+RUN go build -v -o /app/customize .
 
 FROM debian:bookworm-slim
 
-COPY --from=builder /run-app /usr/local/bin/
-COPY --from=builder /usr/src/app/templates /usr/local/share/customize/templates
-COPY --from=builder /usr/src/app/files /usr/local/share/customize/files
+WORKDIR /app
+
+COPY --from=builder /app/customize /app/
+COPY --from=builder /app/templates /app/templates
+COPY --from=builder /app/files /app/files
 
 EXPOSE 8080
 
-CMD ["run-app"]
+CMD ["./customize"]

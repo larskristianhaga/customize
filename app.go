@@ -112,14 +112,10 @@ func main() {
 
 	http.HandleFunc("/", LandingHandler)
 	http.HandleFunc("/dashboard", DashboardHandler)
-
 	http.HandleFunc("/save", SaveHandler)
-
 	http.HandleFunc("/api/v1/", ApiHandler)
-
 	http.HandleFunc("/examples", ExamplesHandler)
 	http.HandleFunc("/api/v1/spec/openapi.yml", OpenAPIHandler)
-
 	http.HandleFunc("/health", HealthHandler)
 	http.HandleFunc("/robots.txt", RobotsHandler)
 	http.HandleFunc("/sitemap.xml", SitemapHandler)
@@ -129,14 +125,7 @@ func main() {
 }
 
 func LandingHandler(w http.ResponseWriter, _ *http.Request) {
-	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/landing.html")
-	if err != nil {
-		tmpl, err = template.ParseFiles("templates/landing.html")
-		if err != nil {
-			http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
+	tmpl, _ := template.ParseFiles("templates/landing.html")
 	_ = tmpl.Execute(w, nil)
 }
 
@@ -185,14 +174,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	// Create the full endpoint URL
 	endpointURL := fmt.Sprintf("http://%s/api/v1/custom/%s", host, userID)
 
-	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/dashboard.html")
-	if err != nil {
-		tmpl, err = template.ParseFiles("templates/dashboard.html")
-		if err != nil {
-			http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
+	tmpl, _ := template.ParseFiles("templates/dashboard.html")
 
 	data := struct {
 		EndpointURL      string
@@ -206,14 +188,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 
 func OpenAPIHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/yml")
-	tmpl, err := template.ParseFiles("/usr/local/share/customize/files/openapi.yml")
-	if err != nil {
-		tmpl, err = template.ParseFiles("files/openapi.yml")
-		if err != nil {
-			http.Error(w, "Error loading OpenAPI spec: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
+	tmpl, _ := template.ParseFiles("files/openapi.yml")
 	_ = tmpl.Execute(w, nil)
 }
 
@@ -343,7 +318,7 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 		ContentType:         r.FormValue("content_type"),
 		FailureResponseBody: r.FormValue("failure_response_body"),
 	}
-
+	
 	mu.Lock()
 	configs[userID] = cfg
 	mu.Unlock()
@@ -420,13 +395,6 @@ func SitemapHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 func ExamplesHandler(w http.ResponseWriter, _ *http.Request) {
-	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/basic-api-examples-documentation.html")
-	if err != nil {
-		tmpl, err = template.ParseFiles("templates/basic-api-examples-documentation.html")
-		if err != nil {
-			http.Error(w, "Error loading examples template: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
+	tmpl, _ := template.ParseFiles("templates/basic-api-examples-documentation.html")
 	_ = tmpl.Execute(w, nil)
 }
