@@ -41,9 +41,31 @@
             opacity: 0.5;
             pointer-events: none;
         }
+        .toast {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #10B981;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 1000;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .htmx-indicator {
+            display: none;
+        }
+        .htmx-request .htmx-indicator {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
+    <div id="toast" class="toast"></div>
 <div class="max-w-7xl mx-auto px-4 py-8">
     <div class="text-center mb-10">
         <h1 class="text-4xl font-bold text-gray-900 mb-2">Customize Dashboard</h1>
@@ -54,22 +76,24 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <form hx-post="/save" hx-target="#status" hx-swap="innerHTML">
-            <div class="mb-6">
-                <button class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 font-medium">
-                    Create API Endpoint
-                </button>
+        <form hx-post="/save" 
+              hx-target="#status" 
+              hx-swap="innerHTML"
+              hx-trigger="change delay:500ms"
+              hx-indicator="#loading">
+            <div id="loading" class="htmx-indicator">
+                <div class="fixed top-0 left-0 w-full h-1 bg-blue-500 animate-pulse"></div>
             </div>
             <div id="status" class="mb-6">
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm font-medium text-gray-700">Your API Endpoint:</p>
                     <div class="mt-2 bg-gray-100 p-3 rounded-lg">
-                        <code class="text-blue-600 break-all"></code>
+                        <code class="text-blue-600 break-all">{{.EndpointURL}}</code>
                     </div>
                     <div class="mt-2 text-sm text-gray-600">
                         <p>Example usage:</p>
                         <pre class="mt-1 bg-gray-100 p-2 rounded text-sm">
-curl -X <span class="method-placeholder">METHOD</span> <span class="url-placeholder">URL</span>
+curl -X {{.Config.HTTPMethod}} {{.EndpointURL}}
                                 </pre>
                     </div>
                 </div>
@@ -81,26 +105,26 @@ curl -X <span class="method-placeholder">METHOD</span> <span class="url-placehol
                     <div>
                         <label class="block mb-2 font-medium">HTTP Method
                             <select name="http_method" class="w-full border p-2 rounded mt-1">
-                                <option value="GET">GET</option>
-                                <option value="POST">POST</option>
-                                <option value="PUT">PUT</option>
-                                <option value="DELETE">DELETE</option>
-                                <option value="PATCH">PATCH</option>
-                                <option value="HEAD">HEAD</option>
-                                <option value="OPTIONS">OPTIONS</option>
+                                <option value="GET" {{if eq .Config.HTTPMethod "GET"}}selected{{end}}>GET</option>
+                                <option value="POST" {{if eq .Config.HTTPMethod "POST"}}selected{{end}}>POST</option>
+                                <option value="PUT" {{if eq .Config.HTTPMethod "PUT"}}selected{{end}}>PUT</option>
+                                <option value="DELETE" {{if eq .Config.HTTPMethod "DELETE"}}selected{{end}}>DELETE</option>
+                                <option value="PATCH" {{if eq .Config.HTTPMethod "PATCH"}}selected{{end}}>PATCH</option>
+                                <option value="HEAD" {{if eq .Config.HTTPMethod "HEAD"}}selected{{end}}>HEAD</option>
+                                <option value="OPTIONS" {{if eq .Config.HTTPMethod "OPTIONS"}}selected{{end}}>OPTIONS</option>
                             </select>
                         </label>
                     </div>
                     <div>
                         <label class="block mb-2 font-medium">Delay (seconds)
-                            <input name="delay_seconds" type="number" value="1" min="0" step="0.1"
+                            <input name="delay_seconds" type="number" value="{{.Config.DelaySeconds}}" min="0" step="0.1"
                                    class="w-full border p-2 rounded mt-1"/>
                         </label>
                     </div>
                     <div class="relative">
                         <label class="block mb-2 font-medium">Content-Type
                             <input name="content_type" type="text"
-                                   value="text/plain"
+                                   value="{{.Config.ContentType}}"
                                    class="w-full border p-2 rounded mt-1"
                                    placeholder="e.g., application/json"
                                    oninput="showContentTypeSuggestions(this.value)"
@@ -116,33 +140,33 @@ curl -X <span class="method-placeholder">METHOD</span> <span class="url-placehol
                         <label class="block mb-2 font-medium">Status Code
                             <select name="status_code" class="w-full border p-2 rounded mt-1">
                                 <optgroup label="Success (2xx)">
-                                    <option value="200">200 OK</option>
-                                    <option value="201">201 Created</option>
-                                    <option value="202">202 Accepted</option>
-                                    <option value="204">204 No Content</option>
+                                    <option value="200" {{if eq .Config.StatusCode 200}}selected{{end}}>200 OK</option>
+                                    <option value="201" {{if eq .Config.StatusCode 201}}selected{{end}}>201 Created</option>
+                                    <option value="202" {{if eq .Config.StatusCode 202}}selected{{end}}>202 Accepted</option>
+                                    <option value="204" {{if eq .Config.StatusCode 204}}selected{{end}}>204 No Content</option>
                                 </optgroup>
                                 <optgroup label="Client Error (4xx)">
-                                    <option value="400">400 Bad Request</option>
-                                    <option value="401">401 Unauthorized</option>
-                                    <option value="403">403 Forbidden</option>
-                                    <option value="404">404 Not Found</option>
-                                    <option value="405">405 Method Not Allowed</option>
-                                    <option value="408">408 Request Timeout</option>
-                                    <option value="409">409 Conflict</option>
-                                    <option value="413">413 Payload Too Large</option>
-                                    <option value="415">415 Unsupported Media Type</option>
-                                    <option value="418">418 I'm a teapot</option>
-                                    <option value="429">429 Too Many Requests</option>
+                                    <option value="400" {{if eq .Config.StatusCode 400}}selected{{end}}>400 Bad Request</option>
+                                    <option value="401" {{if eq .Config.StatusCode 401}}selected{{end}}>401 Unauthorized</option>
+                                    <option value="403" {{if eq .Config.StatusCode 403}}selected{{end}}>403 Forbidden</option>
+                                    <option value="404" {{if eq .Config.StatusCode 404}}selected{{end}}>404 Not Found</option>
+                                    <option value="405" {{if eq .Config.StatusCode 405}}selected{{end}}>405 Method Not Allowed</option>
+                                    <option value="408" {{if eq .Config.StatusCode 408}}selected{{end}}>408 Request Timeout</option>
+                                    <option value="409" {{if eq .Config.StatusCode 409}}selected{{end}}>409 Conflict</option>
+                                    <option value="413" {{if eq .Config.StatusCode 413}}selected{{end}}>413 Payload Too Large</option>
+                                    <option value="415" {{if eq .Config.StatusCode 415}}selected{{end}}>415 Unsupported Media Type</option>
+                                    <option value="418" {{if eq .Config.StatusCode 418}}selected{{end}}>418 I'm a teapot</option>
+                                    <option value="429" {{if eq .Config.StatusCode 429}}selected{{end}}>429 Too Many Requests</option>
                                 </optgroup>
                                 <optgroup label="Server Error (5xx)">
-                                    <option value="500">500 Internal Server Error</option>
-                                    <option value="501">501 Not Implemented</option>
-                                    <option value="502">502 Bad Gateway</option>
-                                    <option value="503">503 Service Unavailable</option>
-                                    <option value="504">504 Gateway Timeout</option>
-                                    <option value="507">507 Insufficient Storage</option>
-                                    <option value="508">508 Loop Detected</option>
-                                    <option value="511">511 Network Authentication Required</option>
+                                    <option value="500" {{if eq .Config.StatusCode 500}}selected{{end}}>500 Internal Server Error</option>
+                                    <option value="501" {{if eq .Config.StatusCode 501}}selected{{end}}>501 Not Implemented</option>
+                                    <option value="502" {{if eq .Config.StatusCode 502}}selected{{end}}>502 Bad Gateway</option>
+                                    <option value="503" {{if eq .Config.StatusCode 503}}selected{{end}}>503 Service Unavailable</option>
+                                    <option value="504" {{if eq .Config.StatusCode 504}}selected{{end}}>504 Gateway Timeout</option>
+                                    <option value="507" {{if eq .Config.StatusCode 507}}selected{{end}}>507 Insufficient Storage</option>
+                                    <option value="508" {{if eq .Config.StatusCode 508}}selected{{end}}>508 Loop Detected</option>
+                                    <option value="511" {{if eq .Config.StatusCode 511}}selected{{end}}>511 Network Authentication Required</option>
                                 </optgroup>
                             </select>
                         </label>
@@ -164,8 +188,7 @@ curl -X <span class="method-placeholder">METHOD</span> <span class="url-placehol
                             </button>
                         </div>
                         <textarea id="response_body" name="response_body" class="w-full border p-2 rounded mt-1 h-48"
-                                  placeholder="Enter your response body">pong</textarea>
-
+                                  placeholder="Enter your response body">{{.Config.ResponseBody}}</textarea>
                     </div>
                 </div>
             </div>
@@ -177,25 +200,22 @@ curl -X <span class="method-placeholder">METHOD</span> <span class="url-placehol
                         <div>
                             <label class="block mb-2 font-medium">Custom Headers
                                 <textarea name="custom_headers" class="w-full border p-2 rounded mt-1 h-24"
-                                          placeholder="X-Custom-Header: value"></textarea>
+                                          placeholder="X-Custom-Header: value">{{.Config.CustomHeaders}}</textarea>
                             </label>
                         </div>
                     </div>
                     <div class="space-y-4">
                         <div>
                             <label class="block mb-2 font-medium">Failure Rate
-                                <input type="range" name="failure_rate" min="0" max="100" value="0"
+                                <input type="range" name="failure_rate" min="0" max="100" value="{{.Config.FailureRate}}"
                                        class="w-full mt-1" oninput="updateFailureRate(this.value)"/>
-                                <span id="failureRateValue" class="text-sm text-gray-600">0%</span>
+                                <span id="failureRateValue" class="text-sm text-gray-600">{{.Config.FailureRate}}%</span>
                             </label>
                         </div>
-                        <div id="failureResponseContainer" class="disabled">
+                        <div id="failureResponseContainer" class="{{if eq .Config.FailureRate 0}}disabled{{end}}">
                             <label class="block mb-2 font-medium">Failure Response Body
                                 <textarea name="failure_response_body" class="w-full border p-2 rounded mt-1 h-48"
-                                          placeholder="Enter response body for failed requests">{
-    "success": false,
-    "message": "Request failed"
-}</textarea>
+                                          placeholder="Enter response body for failed requests">{{.Config.FailureResponseBody}}</textarea>
                             </label>
                         </div>
                     </div>
@@ -292,6 +312,28 @@ curl -X <span class="method-placeholder">METHOD</span> <span class="url-placehol
 </response>`;
         document.querySelector('textarea[name="response_body"]').value = xmlResponse;
     }
+
+    // Show toast notification
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Add event listener for HTMX after request
+    document.body.addEventListener('htmx:afterRequest', function(evt) {
+        if (evt.detail.pathInfo.requestPath === '/save' && evt.detail.successful) {
+            showToast('Endpoint updated successfully!');
+        }
+    });
+
+    // Add event listener for form changes
+    document.querySelector('form').addEventListener('change', function() {
+        htmx.trigger(this, 'submit');
+    });
 </script>
 </body>
 </html> 

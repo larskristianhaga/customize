@@ -24,6 +24,8 @@ type UserConfig struct {
 	CustomHeaders       string `json:"custom_headers"`
 	FailureRate         int    `json:"failure_rate"`
 	ResponseVariability string `json:"response_variability"`
+	ContentType         string `json:"content_type"`
+	FailureResponseBody string `json:"failure_response_body"`
 }
 
 var (
@@ -138,7 +140,51 @@ func LandingHandler(w http.ResponseWriter, _ *http.Request) {
 	_ = tmpl.Execute(w, nil)
 }
 
-func DashboardHandler(w http.ResponseWriter, _ *http.Request) {
+func DashboardHandler(w http.ResponseWriter, r *http.Request) {
+	// Check for existing user ID cookie
+	cookie, err := r.Cookie("user_id")
+	var userID string
+	var cfg UserConfig
+
+	if err != nil || cookie.Value == "" {
+		// Generate new user ID if none exists
+		userID = uuid.New().String()
+		// Set cookie with 1 year expiration
+		http.SetCookie(w, &http.Cookie{
+			Name:     "user_id",
+			Value:    userID,
+			Path:     "/",
+			MaxAge:   365 * 24 * 60 * 60, // 1 year
+			HttpOnly: true,
+			Secure:   true,
+		})
+
+		// Initialize default config for new user
+		cfg = UserConfig{
+			DelaySeconds: 1,
+			ResponseBody: "pong",
+			StatusCode:   200,
+			HTTPMethod:   "GET",
+		}
+		mu.Lock()
+		configs[userID] = cfg
+		mu.Unlock()
+	} else {
+		userID = cookie.Value
+		mu.RLock()
+		cfg = configs[userID]
+		mu.RUnlock()
+	}
+
+	// Get the current host
+	host := r.Host
+	if host == "" {
+		host = "localhost:8080"
+	}
+
+	// Create the full endpoint URL
+	endpointURL := fmt.Sprintf("http://%s/api/v1/custom/%s", host, userID)
+
 	tmpl, err := template.ParseFiles("/usr/local/share/customize/templates/dashboard.html")
 	if err != nil {
 		tmpl, err = template.ParseFiles("templates/dashboard.html")
@@ -147,7 +193,15 @@ func DashboardHandler(w http.ResponseWriter, _ *http.Request) {
 			return
 		}
 	}
-	_ = tmpl.Execute(w, nil)
+
+	data := struct {
+		EndpointURL      string
+		Config          UserConfig
+	}{
+		EndpointURL: endpointURL,
+		Config:      cfg,
+	}
+	tmpl.Execute(w, data)
 }
 
 func OpenAPIHandler(w http.ResponseWriter, _ *http.Request) {
@@ -209,6 +263,11 @@ func HandleRequest(w http.ResponseWriter, r *http.Request, cfg UserConfig) {
 		return
 	}
 
+	// Set content type if configured
+	if cfg.ContentType != "" {
+		w.Header().Set("Content-Type", cfg.ContentType)
+	}
+
 	// Apply custom headers if configured
 	if cfg.CustomHeaders != "" {
 		headers := strings.Split(cfg.CustomHeaders, "\n")
@@ -222,9 +281,8 @@ func HandleRequest(w http.ResponseWriter, r *http.Request, cfg UserConfig) {
 
 	// Check failure rate
 	if cfg.FailureRate > 0 && rand.Intn(100) < cfg.FailureRate {
-		status := http.StatusInternalServerError
-		w.WriteHeader(status)
-		fmt.Fprint(w, cfg.ResponseBody)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, cfg.FailureResponseBody)
 		return
 	}
 
@@ -257,8 +315,21 @@ func HandleRequest(w http.ResponseWriter, r *http.Request, cfg UserConfig) {
 }
 
 func SaveHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	r.ParseForm()
-	userID := uuid.New().String()
+	
+	// Get user ID from cookie
+	cookie, err := r.Cookie("user_id")
+	if err != nil {
+		http.Error(w, "User ID not found", http.StatusBadRequest)
+		return
+	}
+	userID := cookie.Value
+
 	cfg := UserConfig{
 		DelaySeconds:        atoi(r.FormValue("delay_seconds")),
 		ResponseBody:        r.FormValue("response_body"),
@@ -269,6 +340,8 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 		CustomHeaders:       r.FormValue("custom_headers"),
 		FailureRate:         atoi(r.FormValue("failure_rate")),
 		ResponseVariability: r.FormValue("response_variability"),
+		ContentType:         r.FormValue("content_type"),
+		FailureResponseBody: r.FormValue("failure_response_body"),
 	}
 
 	mu.Lock()
@@ -285,30 +358,16 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 	endpointURL := fmt.Sprintf("http://%s/api/v1/custom/%s", host, userID)
 
 	tmpl := template.Must(template.New("saved").Parse(`
-		<div class="bg-green-50 text-green-800 rounded-lg p-4 mt-4">
-			<div class="flex">
-				<div class="flex-shrink-0">
-					<svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-						<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-					</svg>
-				</div>
-				<div class="ml-3">
-					<p class="text-sm font-medium">
-						Configuration saved successfully!
-					</p>
-					<div class="mt-4">
-						<p class="text-sm font-medium text-gray-700">Your API Endpoint:</p>
-						<div class="mt-2 bg-gray-100 p-3 rounded-lg">
-							<code class="text-blue-600 break-all">{{.EndpointURL}}</code>
-						</div>
-						<div class="mt-2 text-sm text-gray-600">
-							<p>Example usage:</p>
-							<pre class="mt-1 bg-gray-100 p-2 rounded text-sm">
+		<div class="bg-gray-50 p-4 rounded-lg">
+			<p class="text-sm font-medium text-gray-700">Your API Endpoint:</p>
+			<div class="mt-2 bg-gray-100 p-3 rounded-lg">
+				<code class="text-blue-600 break-all">{{.EndpointURL}}</code>
+			</div>
+			<div class="mt-2 text-sm text-gray-600">
+				<p>Example usage:</p>
+				<pre class="mt-1 bg-gray-100 p-2 rounded text-sm">
 curl -X {{.Method}} {{.EndpointURL}}
-							</pre>
-						</div>
-					</div>
-				</div>
+				</pre>
 			</div>
 		</div>
 	`))
@@ -320,6 +379,8 @@ curl -X {{.Method}} {{.EndpointURL}}
 		EndpointURL: endpointURL,
 		Method:      cfg.HTTPMethod,
 	}
+
+	w.Header().Set("Content-Type", "text/html")
 	tmpl.Execute(w, data)
 }
 
