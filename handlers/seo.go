@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+var domain = "https://customize.fly.dev"
+
 func RobotsHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	_, _ = fmt.Fprint(w, `User-agent: *
