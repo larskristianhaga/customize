@@ -8,6 +8,8 @@ import (
 	"github.com/larskristianhaga/customize/handlers"
 )
 
+var domain = "https://customize.fly.dev"
+
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
