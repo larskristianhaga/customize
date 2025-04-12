@@ -4,12 +4,10 @@ info:
   description: A collection of basic example API endpoints for testing and development
   version: 0.0.9
 servers:
-  - url: https://customize.fly.dev/api/v1
-    description: Production server
-  - url: https://localhost:8080/api/v1
+  - url: http://localhost:8080/api/v1/examples
     description: Local server
 paths:
-  /examples/success:
+  /success:
     get:
       summary: Success response example
       description: Returns a 200 OK response
@@ -27,7 +25,7 @@ paths:
                   message:
                     type: string
                     example: This is a success example
-  /examples/created:
+  /created:
     post:
       summary: Created response example
       description: Returns a 201 Created response with a Location header
@@ -54,7 +52,7 @@ paths:
                   id:
                     type: string
                     example: "42"
-  /examples/badrequest:
+  /badrequest:
     get:
       summary: Bad Request example
       description: Returns a 400 Bad Request response
@@ -72,7 +70,7 @@ paths:
                   message:
                     type: string
                     example: Invalid request parameters
-  /examples/unauthorized:
+  /unauthorized:
     get:
       summary: Unauthorized example
       description: Returns a 401 Unauthorized response
@@ -90,7 +88,7 @@ paths:
                   message:
                     type: string
                     example: Unauthorized access
-  /examples/forbidden:
+  /forbidden:
     get:
       summary: Forbidden example
       description: Returns a 403 Forbidden response
@@ -108,7 +106,7 @@ paths:
                   message:
                     type: string
                     example: Access forbidden
-  /examples/notfound:
+  /notfound:
     get:
       summary: Not Found example
       description: Returns a 404 Not Found response
@@ -126,7 +124,7 @@ paths:
                   message:
                     type: string
                     example: Resource not found
-  /examples/ratelimit:
+  /ratelimit:
     get:
       summary: Rate Limit example
       description: Returns a 429 Too Many Requests response
@@ -144,7 +142,7 @@ paths:
                   message:
                     type: string
                     example: Too many requests
-  /examples/teapot:
+  /teapot:
     get:
       summary: I'm a teapot example
       description: Returns a 418 I'm a teapot status code
@@ -162,7 +160,7 @@ paths:
                   message:
                     type: string
                     example: I'm a teapot
-  /examples/error:
+  /error:
     get:
       summary: Error response example
       description: Returns a 500 Internal Server Error
@@ -180,7 +178,7 @@ paths:
                   message:
                     type: string
                     example: This is an error example
-  /examples/serviceunavailable:
+  /serviceunavailable:
     get:
       summary: Service Unavailable example
       description: Returns a 503 Service Unavailable response
@@ -198,7 +196,7 @@ paths:
                   message:
                     type: string
                     example: Service temporarily unavailable
-  /examples/timeout:
+  /timeout:
     get:
       summary: 10-second timeout example
       description: Simulates a slow API response with a 10-second delay

@@ -18,10 +18,11 @@ func main() {
 
 	http.HandleFunc("/dashboard", handlers.DashboardHandler)
 	http.HandleFunc("/save", handlers.SaveHandler)
-	http.HandleFunc("/api/v1/", handlers.ApiHandler)
+	http.HandleFunc("/api/v1/custom/", handlers.CustomApiHandler)
 
 	http.HandleFunc("/basic-api-examples", handlers.BasicApiExamplesHandler)
 	http.HandleFunc("/api/v1/spec/openapi.yml", handlers.OpenAPIHandler)
+	http.HandleFunc("/api/v1/examples/", handlers.ExamplesApiHandler)
 
 	http.HandleFunc("/health", handlers.HealthHandler)
 

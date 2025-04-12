@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Customize - API Testing</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <style>
@@ -77,23 +78,16 @@
 
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
         <form hx-post="/save" 
-              hx-target="#status" 
-              hx-swap="innerHTML"
-              hx-trigger="change delay:500ms"
-              hx-indicator="#loading">
+              hx-indicator="#loading"
+              hx-swap="none">
             <div id="loading" class="htmx-indicator">
                 <div class="fixed top-0 left-0 w-full h-1 bg-blue-500 animate-pulse"></div>
             </div>
-            <div id="status" class="mb-6">
+            <div class="mb-6">
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm font-medium text-gray-700">Your API Endpoint:</p>
                     <div class="mt-2 bg-gray-100 p-3 rounded-lg">
                         <code class="text-blue-600 break-all">{{.EndpointURL}}</code>
-                    </div>
-                    <div class="mt-2 text-sm text-gray-600">
-                        <p>Example usage:</p>
-                        <pre class="mt-1 bg-gray-100 p-2 rounded text-sm">
-curl -X {{.Config.HTTPMethod}} {{.EndpointURL}}</pre>
                     </div>
                 </div>
             </div>
@@ -103,7 +97,7 @@ curl -X {{.Config.HTTPMethod}} {{.EndpointURL}}</pre>
                     <h3 class="text-lg font-semibold mb-4">Endpoint Configuration</h3>
                     <div>
                         <label class="block mb-2 font-medium">HTTP Method
-                            <select name="http_method" class="w-full border p-2 rounded mt-1">
+                            <select name="http_method" class="w-full border p-2 rounded mt-1" value="{{.Config.HTTPMethod}}">
                                 <option value="GET" {{if eq .Config.HTTPMethod "GET"}}selected{{end}}>GET</option>
                                 <option value="POST" {{if eq .Config.HTTPMethod "POST"}}selected{{end}}>POST</option>
                                 <option value="PUT" {{if eq .Config.HTTPMethod "PUT"}}selected{{end}}>PUT</option>
@@ -116,7 +110,7 @@ curl -X {{.Config.HTTPMethod}} {{.EndpointURL}}</pre>
                     </div>
                     <div>
                         <label class="block mb-2 font-medium">Delay (seconds)
-                            <input name="delay_seconds" type="number" value="{{.Config.DelaySeconds}}" min="0" step="0.1"
+                            <input name="delay_seconds" type="number" value="{{.Config.DelaySeconds}}" min="0" step="0.5"
                                    class="w-full border p-2 rounded mt-1"/>
                         </label>
                     </div>
@@ -137,7 +131,7 @@ curl -X {{.Config.HTTPMethod}} {{.EndpointURL}}</pre>
                     <h3 class="text-lg font-semibold mb-4">Response Settings</h3>
                     <div>
                         <label class="block mb-2 font-medium">Status Code
-                            <select name="status_code" class="w-full border p-2 rounded mt-1">
+                            <select name="status_code" class="w-full border p-2 rounded mt-1" value="{{.Config.StatusCode}}">
                                 <optgroup label="Success (2xx)">
                                     <option value="200" {{if eq .Config.StatusCode 200}}selected{{end}}>200 OK</option>
                                     <option value="201" {{if eq .Config.StatusCode 201}}selected{{end}}>201 Created</option>
