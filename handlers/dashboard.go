@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-
 	"net/http"
 	"strconv"
 	"strings"
@@ -120,8 +119,12 @@ func atoi(s string) int {
 }
 
 func CustomApiHandler(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	userID := parts[len(parts)-1]
+	// Remove the prefix from the path
+	path := strings.TrimPrefix(r.URL.Path, "/api/v1/custom/")
+	// Split the remaining path
+	parts := strings.Split(path, "/")
+
+	userID := parts[0]
 
 	mu.RLock()
 	cfg, ok := configs[userID]
