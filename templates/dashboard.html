@@ -3,7 +3,6 @@
 <head>
     <title>Customize - API Testing</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <style>
         .tab-content { display: none; }
@@ -57,10 +56,10 @@
         .toast.show {
             opacity: 1;
         }
-        .htmx-indicator {
+        .loading {
             display: none;
         }
-        .htmx-request .htmx-indicator {
+        .loading.active {
             display: block;
         }
     </style>
@@ -77,10 +76,8 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <form hx-post="/save" 
-              hx-indicator="#loading"
-              hx-swap="none">
-            <div id="loading" class="htmx-indicator">
+        <form id="configForm" method="POST" action="/save">
+            <div id="loading" class="loading">
                 <div class="fixed top-0 left-0 w-full h-1 bg-blue-500 animate-pulse"></div>
             </div>
             <div class="mb-6">
@@ -244,10 +241,6 @@
         }
     }
 
-    document.querySelector('input[name="failure_rate"]').addEventListener('input', function(e) {
-        updateFailureRate(e.target.value);
-    });
-
     function showContentTypeSuggestions(value) {
         const suggestionsDiv = document.getElementById('contentTypeSuggestions');
         suggestionsDiv.innerHTML = '';
@@ -316,16 +309,23 @@
         }, 3000);
     }
 
-    // Add event listener for HTMX after request
-    document.body.addEventListener('htmx:afterRequest', function(evt) {
-        if (evt.detail.pathInfo.requestPath === '/save' && evt.detail.successful) {
-            showToast('Endpoint updated successfully!');
-        }
-    });
-
     // Add event listener for form changes
-    document.querySelector('form').addEventListener('change', function() {
-        htmx.trigger(this, 'submit');
+    document.getElementById('configForm').addEventListener('change', function() {
+        const loading = document.getElementById('loading');
+        loading.classList.add('active');
+        
+        fetch('/save', {
+            method: 'POST',
+            body: new FormData(this)
+        })
+        .then(response => {
+            if (response.ok) {
+                showToast('Endpoint updated successfully!');
+            }
+        })
+        .finally(() => {
+            loading.classList.remove('active');
+        });
     });
 </script>
 </body>
