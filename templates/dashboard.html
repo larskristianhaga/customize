@@ -77,9 +77,6 @@
 
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
         <form id="configForm" method="POST" action="/save">
-            <div id="loading" class="loading">
-                <div class="fixed top-0 left-0 w-full h-1 bg-blue-500 animate-pulse"></div>
-            </div>
             <div class="mb-6">
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm font-medium text-gray-700">Your API Endpoint:</p>
@@ -291,11 +288,7 @@
     }
 
     function generateXMLResponse() {
-        const xmlResponse = `<?xml version="1.0" encoding="UTF-8"?>
-<response>
-<success>true</success>
-<message>Request processed successfully</message>
-</response>`;
+        const xmlResponse = `<?xml version="1.0" encoding="UTF-8"?>\n<response>\n   <success>true</success>\n  <message>Request processed successfully</message>\n</response>`;
         document.querySelector('textarea[name="response_body"]').value = xmlResponse;
     }
 
