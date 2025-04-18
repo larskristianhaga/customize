@@ -36,6 +36,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		// Initialize default config for new user
 		cfg = UserConfig{
 			DelaySeconds: 1,
+			ContentType:  "text/plain",
 			ResponseBody: "pong",
 			StatusCode:   200,
 			HTTPMethod:   "GET",
@@ -54,6 +55,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			cfg = UserConfig{
 				DelaySeconds: 1,
+				ContentType:  "text/plain",
 				ResponseBody: "pong",
 				StatusCode:   200,
 				HTTPMethod:   "GET",
