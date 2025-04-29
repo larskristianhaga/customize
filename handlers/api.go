@@ -20,6 +20,7 @@ type UserConfig struct {
 	ResponseVariability string `json:"response_variability"`
 	ContentType         string `json:"content_type"`
 	FailureResponseBody string `json:"failure_response_body"`
+	CacheControl        string `json:"cache_control"`
 }
 
 func HandleAPIRequest(w http.ResponseWriter, r *http.Request, cfg UserConfig) {
@@ -30,6 +31,10 @@ func HandleAPIRequest(w http.ResponseWriter, r *http.Request, cfg UserConfig) {
 
 	if cfg.ContentType != "" {
 		w.Header().Set("Content-Type", cfg.ContentType)
+	}
+
+	if cfg.CacheControl != "" {
+		w.Header().Set("Cache-Control", cfg.CacheControl)
 	}
 
 	if cfg.CustomHeaders != "" {

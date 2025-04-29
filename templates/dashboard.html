@@ -76,6 +76,9 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div id="loading" class="loading text-center py-2 text-gray-600">
+            <span>Saving changes...</span>
+        </div>
         <form id="configForm" method="POST" action="/save">
             <div class="mb-6">
                 <div class="bg-gray-50 p-4 rounded-lg">
@@ -190,6 +193,20 @@
                                           placeholder="X-Custom-Header: value">{{.Config.CustomHeaders}}</textarea>
                             </label>
                         </div>
+                        <div class="relative">
+                            <label class="block mb-2 font-medium">Cache-Control
+                                <input name="cache_control" type="text"
+                                       value="{{.Config.CacheControl}}"
+                                       class="w-full border p-2 rounded mt-1"
+                                       placeholder="e.g., no-cache, private, max-age=3600"
+                                       oninput="showCacheControlSuggestions(this.value)"
+                                       onfocus="showCacheControlSuggestions(this.value)"/>
+                                <div class="suggestions" id="cacheControlSuggestions"></div>
+                                <div class="text-sm text-gray-600 mt-1">
+                                    Common directives: no-cache, no-store, private, public, max-age=(seconds), must-revalidate
+                                </div>
+                            </label>
+                        </div>
                     </div>
                     <div class="space-y-4">
                         <div>
@@ -213,6 +230,55 @@
 </div>
 
 <script>
+    const cacheControlSuggestions = [
+        "no-cache",
+        "no-store",
+        "private",
+        "public",
+        "max-age=3600",
+        "must-revalidate",
+        "no-cache, private",
+        "public, max-age=3600",
+        "private, max-age=3600",
+        "no-cache, no-store",
+        "private, no-cache, must-revalidate",
+        "public, max-age=3600, must-revalidate",
+        "no-store, must-revalidate",
+        "max-age=0, must-revalidate, no-store",
+        "public, immutable, max-age=31536000",
+        "private, max-age=3600, stale-while-revalidate=60"
+    ];
+
+    function showCacheControlSuggestions(value) {
+        const suggestionsDiv = document.getElementById('cacheControlSuggestions');
+        suggestionsDiv.innerHTML = '';
+
+        if (!value) {
+            suggestionsDiv.style.display = 'none';
+            return;
+        }
+
+        const filtered = cacheControlSuggestions.filter(type =>
+            type.toLowerCase().includes(value.toLowerCase())
+        );
+
+        if (filtered.length > 0) {
+            filtered.forEach(type => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = type;
+                div.onclick = () => {
+                    document.querySelector('input[name="cache_control"]').value = type;
+                    suggestionsDiv.style.display = 'none';
+                };
+                suggestionsDiv.appendChild(div);
+            });
+            suggestionsDiv.style.display = 'block';
+        } else {
+            suggestionsDiv.style.display = 'none';
+        }
+    }
+
     const contentTypeSuggestions = [
         "application/json",
         "application/xml",
@@ -272,6 +338,7 @@
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.relative')) {
             document.getElementById('contentTypeSuggestions').style.display = 'none';
+            document.getElementById('cacheControlSuggestions').style.display = 'none';
         }
     });
 
@@ -322,4 +389,4 @@
     });
 </script>
 </body>
-</html> 
+</html>

@@ -106,6 +106,7 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 		ResponseVariability: r.FormValue("response_variability"),
 		ContentType:         r.FormValue("content_type"),
 		FailureResponseBody: r.FormValue("failure_response_body"),
+		CacheControl:        r.FormValue("cache_control"),
 	}
 
 	mu.Lock()
