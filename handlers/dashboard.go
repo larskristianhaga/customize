@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -76,7 +77,10 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		EndpointURL: endpointURL,
 		Config:      cfg,
 	}
-	tmpl.Execute(w, data)
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println("Error: ", err)
+	}
 }
 
 func SaveHandler(w http.ResponseWriter, r *http.Request) {
