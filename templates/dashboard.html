@@ -2,15 +2,22 @@
 <html>
 <head>
     <title>Customize - API Testing</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link href="/static/favicon.svg" rel="icon" type="image/svg+xml">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .tab-button.active { 
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-button.active {
             background-color: #3b82f6;
             color: white;
         }
+
         .json-preview {
             font-family: monospace;
             white-space: pre;
@@ -19,6 +26,7 @@
             border-radius: 0.5rem;
             border: 1px solid #e2e8f0;
         }
+
         .suggestions {
             position: absolute;
             background: white;
@@ -30,17 +38,21 @@
             z-index: 10;
             display: none;
         }
+
         .suggestion-item {
             padding: 0.5rem 1rem;
             cursor: pointer;
         }
+
         .suggestion-item:hover {
             background-color: #f8fafc;
         }
+
         .disabled {
             opacity: 0.5;
             pointer-events: none;
         }
+
         .toast {
             position: fixed;
             top: 1rem;
@@ -53,30 +65,34 @@
             transition: opacity 0.3s ease-in-out;
             z-index: 1000;
         }
+
         .toast.show {
             opacity: 1;
         }
+
         .loading {
             display: none;
         }
+
         .loading.active {
             display: block;
         }
     </style>
 </head>
 <body class="bg-gray-50">
-    <div id="toast" class="toast"></div>
+<div class="toast" id="toast"></div>
 <div class="max-w-7xl mx-auto px-4 py-8">
     <div class="text-center mb-10">
         <h1 class="text-4xl font-bold text-gray-900 mb-2">Customize Dashboard</h1>
-        <a href="https://www.buymeacoffee.com/larskristianhaga" target="_blank" rel="noopener noreferrer"
-                   class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
-                    Buy me a Beer
+        <a class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+           href="https://www.buymeacoffee.com/larskristianhaga" rel="noopener noreferrer"
+           target="_blank">
+            Buy me a Beer
         </a>
     </div>
 
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <form id="configForm" method="POST" action="/save">
+        <form action="/save" id="configForm" method="POST">
             <div class="mb-6">
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm font-medium text-gray-700">Your API Endpoint:</p>
@@ -91,31 +107,40 @@
                     <h3 class="text-lg font-semibold mb-4">Endpoint Configuration</h3>
                     <div>
                         <label class="block mb-2 font-medium">HTTP Method
-                            <select name="http_method" class="w-full border p-2 rounded mt-1" value="{{.Config.HTTPMethod}}">
-                                <option value="GET" {{if eq .Config.HTTPMethod "GET"}}selected{{end}}>GET</option>
-                                <option value="POST" {{if eq .Config.HTTPMethod "POST"}}selected{{end}}>POST</option>
-                                <option value="PUT" {{if eq .Config.HTTPMethod "PUT"}}selected{{end}}>PUT</option>
-                                <option value="DELETE" {{if eq .Config.HTTPMethod "DELETE"}}selected{{end}}>DELETE</option>
-                                <option value="PATCH" {{if eq .Config.HTTPMethod "PATCH"}}selected{{end}}>PATCH</option>
-                                <option value="HEAD" {{if eq .Config.HTTPMethod "HEAD"}}selected{{end}}>HEAD</option>
-                                <option value="OPTIONS" {{if eq .Config.HTTPMethod "OPTIONS"}}selected{{end}}>OPTIONS</option>
+                            <select class="w-full border p-2 rounded mt-1" name="http_method"
+                                    value="{{.Config.HTTPMethod}}">
+                                <option .Config.HTTPMethod eq value="GET" {{if
+                                "GET"}}selected{{end}}>GET</option>
+                                <option .Config.HTTPMethod eq value="POST" {{if
+                                "POST"}}selected{{end}}>POST</option>
+                                <option .Config.HTTPMethod eq value="PUT" {{if
+                                "PUT"}}selected{{end}}>PUT</option>
+                                <option .Config.HTTPMethod eq value="DELETE" {{if
+                                "DELETE"}}selected{{end}}>DELETE</option>
+                                <option .Config.HTTPMethod eq value="PATCH" {{if
+                                "PATCH"}}selected{{end}}>PATCH</option>
+                                <option .Config.HTTPMethod eq value="HEAD" {{if
+                                "HEAD"}}selected{{end}}>HEAD</option>
+                                <option .Config.HTTPMethod eq value="OPTIONS" {{if
+                                "OPTIONS"}}selected{{end}}>OPTIONS</option>
                             </select>
                         </label>
                     </div>
                     <div>
                         <label class="block mb-2 font-medium">Delay (seconds)
-                            <input name="delay_seconds" type="number" value="{{.Config.DelaySeconds}}" min="0" step="0.5"
-                                   class="w-full border p-2 rounded mt-1"/>
+                            <input class="w-full border p-2 rounded mt-1" min="0" name="delay_seconds" step="0.5"
+                                   type="number"
+                                   value="{{.Config.DelaySeconds}}"/>
                         </label>
                     </div>
                     <div class="relative">
                         <label class="block mb-2 font-medium">Content-Type
-                            <input name="content_type" type="text"
-                                   value="{{.Config.ContentType}}"
-                                   class="w-full border p-2 rounded mt-1"
-                                   placeholder="e.g., application/json"
+                            <input class="w-full border p-2 rounded mt-1" name="content_type"
+                                   onfocus="showContentTypeSuggestions(this.value)"
                                    oninput="showContentTypeSuggestions(this.value)"
-                                   onfocus="showContentTypeSuggestions(this.value)"/>
+                                   placeholder="e.g., application/json"
+                                   type="text"
+                                   value="{{.Config.ContentType}}"/>
                             <div class="suggestions" id="contentTypeSuggestions"></div>
                         </label>
                     </div>
@@ -125,56 +150,98 @@
                     <h3 class="text-lg font-semibold mb-4">Response Settings</h3>
                     <div>
                         <label class="block mb-2 font-medium">Status Code
-                            <select name="status_code" class="w-full border p-2 rounded mt-1" value="{{.Config.StatusCode}}">
+                            <select class="w-full border p-2 rounded mt-1" name="status_code"
+                                    value="{{.Config.StatusCode}}">
                                 <optgroup label="Success (2xx)">
-                                    <option value="200" {{if eq .Config.StatusCode 200}}selected{{end}}>200 OK</option>
-                                    <option value="201" {{if eq .Config.StatusCode 201}}selected{{end}}>201 Created</option>
-                                    <option value="202" {{if eq .Config.StatusCode 202}}selected{{end}}>202 Accepted</option>
-                                    <option value="204" {{if eq .Config.StatusCode 204}}selected{{end}}>204 No Content</option>
+                                    <option .Config.StatusCode 200}}selected{{end}} eq value="200" {{if>200 OK</option>
+                                    <option .Config.StatusCode 201}}selected{{end}} eq value="201" {{if>201 Created
+                                    </option>
+                                    <option .Config.StatusCode 202}}selected{{end}} eq value="202" {{if>202 Accepted
+                                    </option>
+                                    <option .Config.StatusCode 204}}selected{{end}} eq value="204" {{if>204 No Content
+                                    </option>
                                 </optgroup>
                                 <optgroup label="Client Error (4xx)">
-                                    <option value="400" {{if eq .Config.StatusCode 400}}selected{{end}}>400 Bad Request</option>
-                                    <option value="401" {{if eq .Config.StatusCode 401}}selected{{end}}>401 Unauthorized</option>
-                                    <option value="403" {{if eq .Config.StatusCode 403}}selected{{end}}>403 Forbidden</option>
-                                    <option value="404" {{if eq .Config.StatusCode 404}}selected{{end}}>404 Not Found</option>
-                                    <option value="405" {{if eq .Config.StatusCode 405}}selected{{end}}>405 Method Not Allowed</option>
-                                    <option value="408" {{if eq .Config.StatusCode 408}}selected{{end}}>408 Request Timeout</option>
-                                    <option value="409" {{if eq .Config.StatusCode 409}}selected{{end}}>409 Conflict</option>
-                                    <option value="413" {{if eq .Config.StatusCode 413}}selected{{end}}>413 Payload Too Large</option>
-                                    <option value="415" {{if eq .Config.StatusCode 415}}selected{{end}}>415 Unsupported Media Type</option>
-                                    <option value="418" {{if eq .Config.StatusCode 418}}selected{{end}}>418 I'm a teapot</option>
-                                    <option value="429" {{if eq .Config.StatusCode 429}}selected{{end}}>429 Too Many Requests</option>
+                                    <option .Config.StatusCode 400}}selected{{end}} eq value="400" {{if>400 Bad
+                                        Request
+                                    </option>
+                                    <option .Config.StatusCode 401}}selected{{end}} eq value="401" {{if>401
+                                        Unauthorized
+                                    </option>
+                                    <option .Config.StatusCode 403}}selected{{end}} eq value="403" {{if>403 Forbidden
+                                    </option>
+                                    <option .Config.StatusCode 404}}selected{{end}} eq value="404" {{if>404 Not Found
+                                    </option>
+                                    <option .Config.StatusCode 405}}selected{{end}} eq value="405" {{if>405 Method Not
+                                        Allowed
+                                    </option>
+                                    <option .Config.StatusCode 408}}selected{{end}} eq value="408" {{if>408 Request
+                                        Timeout
+                                    </option>
+                                    <option .Config.StatusCode 409}}selected{{end}} eq value="409" {{if>409 Conflict
+                                    </option>
+                                    <option .Config.StatusCode 413}}selected{{end}} eq value="413" {{if>413 Payload Too
+                                        Large
+                                    </option>
+                                    <option .Config.StatusCode 415}}selected{{end}} eq value="415" {{if>415 Unsupported
+                                        Media Type
+                                    </option>
+                                    <option .Config.StatusCode 418}}selected{{end}} eq value="418" {{if>418 I'm a
+                                        teapot
+                                    </option>
+                                    <option .Config.StatusCode 429}}selected{{end}} eq value="429" {{if>429 Too Many
+                                        Requests
+                                    </option>
                                 </optgroup>
                                 <optgroup label="Server Error (5xx)">
-                                    <option value="500" {{if eq .Config.StatusCode 500}}selected{{end}}>500 Internal Server Error</option>
-                                    <option value="501" {{if eq .Config.StatusCode 501}}selected{{end}}>501 Not Implemented</option>
-                                    <option value="502" {{if eq .Config.StatusCode 502}}selected{{end}}>502 Bad Gateway</option>
-                                    <option value="503" {{if eq .Config.StatusCode 503}}selected{{end}}>503 Service Unavailable</option>
-                                    <option value="504" {{if eq .Config.StatusCode 504}}selected{{end}}>504 Gateway Timeout</option>
-                                    <option value="507" {{if eq .Config.StatusCode 507}}selected{{end}}>507 Insufficient Storage</option>
-                                    <option value="508" {{if eq .Config.StatusCode 508}}selected{{end}}>508 Loop Detected</option>
-                                    <option value="511" {{if eq .Config.StatusCode 511}}selected{{end}}>511 Network Authentication Required</option>
+                                    <option .Config.StatusCode 500}}selected{{end}} eq value="500" {{if>500 Internal
+                                        Server Error
+                                    </option>
+                                    <option .Config.StatusCode 501}}selected{{end}} eq value="501" {{if>501 Not
+                                        Implemented
+                                    </option>
+                                    <option .Config.StatusCode 502}}selected{{end}} eq value="502" {{if>502 Bad
+                                        Gateway
+                                    </option>
+                                    <option .Config.StatusCode 503}}selected{{end}} eq value="503" {{if>503 Service
+                                        Unavailable
+                                    </option>
+                                    <option .Config.StatusCode 504}}selected{{end}} eq value="504" {{if>504 Gateway
+                                        Timeout
+                                    </option>
+                                    <option .Config.StatusCode 507}}selected{{end}} eq value="507" {{if>507 Insufficient
+                                        Storage
+                                    </option>
+                                    <option .Config.StatusCode 508}}selected{{end}} eq value="508" {{if>508 Loop
+                                        Detected
+                                    </option>
+                                    <option .Config.StatusCode 511}}selected{{end}} eq value="511" {{if>511 Network
+                                        Authentication Required
+                                    </option>
                                 </optgroup>
                             </select>
                         </label>
                     </div>
                     <div>
-                        <label for="response_body" class="block mb-2 font-medium">Response Body</label>
+                        <label class="block mb-2 font-medium" for="response_body">Response Body</label>
                         <div class="flex space-x-2 mb-2">
-                            <button type="button" onclick="generateJSONResponse()"
-                                    class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
+                            <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm"
+                                    onclick="generateJSONResponse()"
+                                    type="button">
                                 JSON
                             </button>
-                            <button type="button" onclick="generateXMLResponse()"
-                                    class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
+                            <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm"
+                                    onclick="generateXMLResponse()"
+                                    type="button">
                                 XML
                             </button>
-                            <button type="button" onclick="clearResponseBody()"
-                                    class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">
+                            <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm"
+                                    onclick="clearResponseBody()"
+                                    type="button">
                                 Clear
                             </button>
                         </div>
-                        <textarea id="response_body" name="response_body" class="w-full border p-2 rounded mt-1 h-48"
+                        <textarea class="w-full border p-2 rounded mt-1 h-48" id="response_body" name="response_body"
                                   placeholder="Enter your response body">{{.Config.ResponseBody}}</textarea>
                     </div>
                 </div>
@@ -186,7 +253,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block mb-2 font-medium">Custom Headers
-                                <textarea name="custom_headers" class="w-full border p-2 rounded mt-1 h-24"
+                                <textarea class="w-full border p-2 rounded mt-1 h-24" name="custom_headers"
                                           placeholder="X-Custom-Header: value">{{.Config.CustomHeaders}}</textarea>
                             </label>
                         </div>
@@ -194,14 +261,16 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block mb-2 font-medium">Failure Rate
-                                <input type="range" name="failure_rate" min="0" max="100" value="{{.Config.FailureRate}}"
-                                       class="w-full mt-1" oninput="updateFailureRate(this.value)"/>
-                                <span id="failureRateValue" class="text-sm text-gray-600">{{.Config.FailureRate}}%</span>
+                                <input class="w-full mt-1" max="100" min="0" name="failure_rate"
+                                       oninput="updateFailureRate(this.value)"
+                                       type="range" value="{{.Config.FailureRate}}"/>
+                                <span class="text-sm text-gray-600"
+                                      id="failureRateValue">{{.Config.FailureRate}}%</span>
                             </label>
                         </div>
-                        <div id="failureResponseContainer" class="{{if eq .Config.FailureRate 0}}disabled{{end}}">
+                        <div class="{{if eq .Config.FailureRate 0}}disabled{{end}}" id="failureResponseContainer">
                             <label class="block mb-2 font-medium">Failure Response Body
-                                <textarea name="failure_response_body" class="w-full border p-2 rounded mt-1 h-48"
+                                <textarea class="w-full border p-2 rounded mt-1 h-48" name="failure_response_body"
                                           placeholder="Enter response body for failed requests">{{.Config.FailureResponseBody}}</textarea>
                             </label>
                         </div>
@@ -268,13 +337,6 @@
         }
     }
 
-    // Close suggestions when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.relative')) {
-            document.getElementById('contentTypeSuggestions').style.display = 'none';
-        }
-    });
-
     function clearResponseBody() {
         document.querySelector('textarea[name="response_body"]').value = '';
     }
@@ -299,14 +361,18 @@
         toast.classList.add('show');
         setTimeout(() => {
             toast.classList.remove('show');
-        }, 3000);
+        }, 2500);
     }
 
-    // Add event listener for form changes
-    document.getElementById('configForm').addEventListener('change', function() {
-        const loading = document.getElementById('loading');
-        loading.classList.add('active');
-        
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.relative')) {
+            document.getElementById('contentTypeSuggestions').style.display = 'none';
+        }
+    });
+
+    // Event listener for form changes
+    document.getElementById('configForm').addEventListener('change', function () {
         fetch('/save', {
             method: 'POST',
             body: new FormData(this)
@@ -316,9 +382,6 @@
                 showToast('Endpoint updated successfully!');
             }
         })
-        .finally(() => {
-            loading.classList.remove('active');
-        });
     });
 </script>
 </body>
