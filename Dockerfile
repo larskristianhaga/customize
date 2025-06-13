@@ -1,25 +1,18 @@
-FROM golang:1.24-bookworm AS builder
+FROM golang:1.24-alpine AS builder
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY go.mod go.sum ./
 
 RUN go mod download && go mod verify
 
-ENV CGO_ENABLED=1
-
 COPY . .
 
-RUN go build -v -o /app/customize .
+RUN CGO_ENABLED=0 go build -v -o /run-app .
 
-FROM debian:bookworm-slim
-
-WORKDIR /app
-
-COPY --from=builder /app/customize /app/
-COPY --from=builder /app/templates /app/templates
-COPY --from=builder /app/files /app/files
+FROM gcr.io/distroless/static-debian12
 
 EXPOSE 8080
 
-CMD ["./customize"]
+COPY --from=builder /run-app /usr/local/bin/
+CMD ["run-app"]
