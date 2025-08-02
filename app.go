@@ -30,8 +30,9 @@ func main() {
 	mux.HandleFunc("/robots.txt", handlers.RobotsHandler)
 	mux.HandleFunc("/sitemap.xml", handlers.SitemapHandler)
 
-	// Wrap the mux with the logging middleware
+	// Wrap the mux with middleware
 	handler := middleware.LoggingMiddleware(mux)
+	handler = middleware.CORSMiddleware(handler)
 
 	log.Println("App live and listening on port:", port)
 	log.Fatal(http.ListenAndServe(":"+port, handler))
