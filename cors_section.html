@@ -1,0 +1,58 @@
+<div class="mt-8 border-t pt-6">
+    <h3 class="text-lg font-semibold mb-4">CORS Configuration</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+            <div>
+                <label class="flex items-center">
+                    <input type="checkbox" name="enable_cors" class="mr-2" {{if .Config.EnableCORS}}checked{{end}}>
+                    <span class="font-medium">Enable CORS</span>
+                </label>
+            </div>
+            
+            <div>
+                <label class="block mb-2 font-medium">Allow Origin
+                    <input class="w-full border p-2 rounded mt-1" name="cors_allow_origin"
+                           placeholder="* or https://example.com" type="text"
+                           value="{{.Config.CORSAllowOrigin}}"/>
+                    <span class="text-xs text-gray-500">Use * for all origins or specify domains</span>
+                </label>
+            </div>
+            
+            <div>
+                <label class="block mb-2 font-medium">Allow Methods
+                    <input class="w-full border p-2 rounded mt-1" name="cors_allow_methods"
+                           placeholder="GET, POST, PUT, DELETE, OPTIONS" type="text"
+                           value="{{.Config.CORSAllowMethods}}"/>
+                    <span class="text-xs text-gray-500">Comma-separated list of allowed HTTP methods</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block mb-2 font-medium">Allow Headers
+                    <input class="w-full border p-2 rounded mt-1" name="cors_allow_headers"
+                           placeholder="Content-Type, Authorization" type="text"
+                           value="{{.Config.CORSAllowHeaders}}"/>
+                    <span class="text-xs text-gray-500">Comma-separated list of allowed headers</span>
+                </label>
+            </div>
+            
+            <div>
+                <label class="block mb-2 font-medium">Max Age (seconds)
+                    <input class="w-full border p-2 rounded mt-1" name="cors_max_age"
+                           placeholder="86400" type="number" min="0"
+                           value="{{.Config.CORSMaxAge}}"/>
+                    <span class="text-xs text-gray-500">How long browsers should cache preflight results</span>
+                </label>
+            </div>
+            
+            <div>
+                <label class="flex items-center">
+                    <input type="checkbox" name="cors_allow_credentials" class="mr-2" {{if .Config.CORSAllowCreds}}checked{{end}}>
+                    <span class="font-medium">Allow Credentials</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
