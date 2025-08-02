@@ -41,6 +41,13 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 			ResponseBody: "pong",
 			StatusCode:   200,
 			HTTPMethod:   "GET",
+			// Default CORS configuration
+			EnableCORS:       false,
+			CORSAllowOrigin:  "*",
+			CORSAllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
+			CORSAllowHeaders: "Content-Type, Authorization",
+			CORSMaxAge:       86400, // 24 hours
+			CORSAllowCreds:   false,
 		}
 		mu.Lock()
 		configs[userID] = cfg
@@ -60,6 +67,13 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 				ResponseBody: "pong",
 				StatusCode:   200,
 				HTTPMethod:   "GET",
+				// Default CORS configuration
+				EnableCORS:       false,
+				CORSAllowOrigin:  "*",
+				CORSAllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
+				CORSAllowHeaders: "Content-Type, Authorization",
+				CORSMaxAge:       86400, // 24 hours
+				CORSAllowCreds:   false,
 			}
 			mu.Lock()
 			configs[userID] = cfg
@@ -110,6 +124,13 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 		ResponseVariability: r.FormValue("response_variability"),
 		ContentType:         r.FormValue("content_type"),
 		FailureResponseBody: r.FormValue("failure_response_body"),
+		// CORS configuration
+		EnableCORS:       r.FormValue("enable_cors") == "on",
+		CORSAllowOrigin:  r.FormValue("cors_allow_origin"),
+		CORSAllowMethods: r.FormValue("cors_allow_methods"),
+		CORSAllowHeaders: r.FormValue("cors_allow_headers"),
+		CORSMaxAge:       atoi(r.FormValue("cors_max_age")),
+		CORSAllowCreds:   r.FormValue("cors_allow_credentials") == "on",
 	}
 
 	mu.Lock()
