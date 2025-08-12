@@ -68,7 +68,10 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	endpointURL := fmt.Sprintf("http://%s/api/v1/custom/%s", r.Host, userID)
-	tmpl, _ := template.ParseFiles("templates/dashboard.html")
+	tmpl, err := template.ParseFiles("templates/dashboard.html")
+	if err == nil {
+		log.Println("Something went wrong trying to parse:", err)
+	}
 
 	data := struct {
 		EndpointURL string
