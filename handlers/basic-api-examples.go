@@ -37,10 +37,16 @@ var exampleEndpoints = map[string]UserConfig{
 		HTTPMethod:   "GET",
 	},
 	"timeout": {
-		DelaySeconds: 10,
-		ResponseBody: `{"status": "success", "message": "This is a 10-second timeout example"}`,
+		DelaySeconds: 25,
+		ResponseBody: `{"status": "success", "message": "This is a 25-second timeout example"}`,
 		StatusCode:   200,
 		HTTPMethod:   "GET",
+	},
+	"timeout-post": {
+		DelaySeconds: 25,
+		ResponseBody: `{"status": "success", "message": "This is a 25-second timeout example from POST"}`,
+		StatusCode:   200,
+		HTTPMethod:   "POST",
 	},
 	"created": {
 		DelaySeconds:  0,
