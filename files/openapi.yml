@@ -1,10 +1,12 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: Customize Basic API Examples
   description: A collection of basic example API endpoints for testing and development
-  version: 0.0.9
+  version: 0.9.0
 servers:
   - url: https://customize.fly.dev:8080/api/v1/examples
+    description: Deployed server
+  - url: http://localhost:8080/api/v1/examples
     description: Local server
 paths:
   /success:
@@ -52,7 +54,7 @@ paths:
                   id:
                     type: string
                     example: "42"
-  /badrequest:
+  /bad-request:
     get:
       summary: Bad Request example
       description: Returns a 400 Bad Request response
@@ -106,7 +108,7 @@ paths:
                   message:
                     type: string
                     example: Access forbidden
-  /notfound:
+  /not-found:
     get:
       summary: Not Found example
       description: Returns a 404 Not Found response
@@ -124,7 +126,7 @@ paths:
                   message:
                     type: string
                     example: Resource not found
-  /ratelimit:
+  /rate-limit:
     get:
       summary: Rate Limit example
       description: Returns a 429 Too Many Requests response
@@ -178,7 +180,25 @@ paths:
                   message:
                     type: string
                     example: This is an error example
-  /serviceunavailable:
+  /error-half:
+    get:
+      summary: Error response example (50% chance)
+      description: Returns a 500 Internal Server Error about half the time
+      responses:
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: This is an error example
+  /service-unavailable:
     get:
       summary: Service Unavailable example
       description: Returns a 503 Service Unavailable response
@@ -213,4 +233,40 @@ paths:
                     example: success
                   message:
                     type: string
-                    example: This is a 10-second timeout example 
+                    example: This is a 10-second timeout example
+  /timeout-long:
+    get:
+      summary: 30-second timeout example
+      description: Simulates a slow API response with a 30-second delay
+      responses:
+        '200':
+          description: Successful response after 30 seconds
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: This is a 30-second timeout example
+  /delay:
+    get:
+      summary: Delay from 0 seconds to 30 seconds
+      description: Simulates a slow API response with a random delay between 0 and 30 seconds
+      responses:
+        '200':
+          description: Successful response after a random delay
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: This is a delay example with random delay between 0 and 30 seconds

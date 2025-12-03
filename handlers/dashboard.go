@@ -100,10 +100,8 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 		StatusCode:          atoi(r.FormValue("status_code")),
 		HangForever:         r.FormValue("hang_forever") == "on",
 		HTTPMethod:          r.FormValue("http_method"),
-		RandomDelay:         r.FormValue("random_delay") == "on",
 		CustomHeaders:       r.FormValue("custom_headers"),
 		FailureRate:         atoi(r.FormValue("failure_rate")),
-		ResponseVariability: r.FormValue("response_variability"),
 		ContentType:         r.FormValue("content_type"),
 		FailureResponseBody: r.FormValue("failure_response_body"),
 	}

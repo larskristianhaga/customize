@@ -9,31 +9,31 @@ import (
 )
 
 type UserConfig struct {
+	HTTPMethod string `json:"http_method"`
+
 	DelaySeconds        int    `json:"delay_seconds"`
-	ResponseBody        string `json:"response_body"`
-	StatusCode          int    `json:"status_code"`
 	HangForever         bool   `json:"hang_forever"`
-	HTTPMethod          string `json:"http_method"`
-	RandomDelay         bool   `json:"random_delay"`
-	CustomHeaders       string `json:"custom_headers"`
 	FailureRate         int    `json:"failure_rate"`
-	ResponseVariability string `json:"response_variability"`
-	ContentType         string `json:"content_type"`
+	CustomHeaders       string `json:"custom_headers"`
 	FailureResponseBody string `json:"failure_response_body"`
+
+	ResponseBody string `json:"response_body"`
+	StatusCode   int    `json:"status_code"`
+	ContentType  string `json:"content_type"`
 }
 
-func HandleAPIRequest(w http.ResponseWriter, r *http.Request, cfg UserConfig) {
-	if cfg.HTTPMethod != "" && r.Method != cfg.HTTPMethod {
+func HandleAPIRequest(w http.ResponseWriter, r *http.Request, config UserConfig) {
+	if config.HTTPMethod != "" && r.Method != config.HTTPMethod {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	if cfg.ContentType != "" {
-		w.Header().Set("Content-Type", cfg.ContentType)
+	if config.ContentType != "" {
+		w.Header().Set("Content-Type", config.ContentType)
 	}
 
-	if cfg.CustomHeaders != "" {
-		headers := strings.Split(cfg.CustomHeaders, "\n")
+	if config.CustomHeaders != "" {
+		headers := strings.Split(config.CustomHeaders, "\n")
 		for _, header := range headers {
 			parts := strings.SplitN(header, ":", 2)
 			if len(parts) == 2 {
@@ -42,23 +42,26 @@ func HandleAPIRequest(w http.ResponseWriter, r *http.Request, cfg UserConfig) {
 		}
 	}
 
-	if cfg.FailureRate > 0 && rand.Intn(100) < cfg.FailureRate {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, cfg.FailureResponseBody)
-		return
+	if config.FailureRate > 0 {
+		if config.FailureRate > rand.Intn(100) {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = fmt.Fprint(w, config.FailureResponseBody)
+			return
+		}
 	}
 
-	if cfg.HangForever {
+	if config.HangForever {
 		select {}
 	}
 
-	delay := time.Duration(cfg.DelaySeconds) * time.Second
-	if cfg.RandomDelay {
-		variation := rand.Float64() - 0.5
-		delay = time.Duration(float64(delay) * (1 + variation))
+	if config.DelaySeconds > 0 {
+		select {
+		case <-r.Context().Done():
+			return
+		case <-time.After(time.Duration(config.DelaySeconds) * time.Second):
+		}
 	}
 
-	time.Sleep(delay)
-	w.WriteHeader(cfg.StatusCode)
-	fmt.Fprint(w, cfg.ResponseBody)
+	w.WriteHeader(config.StatusCode)
+	_, _ = fmt.Fprint(w, config.ResponseBody)
 }

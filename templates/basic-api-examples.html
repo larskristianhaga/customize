@@ -1,41 +1,25 @@
-<!DOCTYPE html>
-<html>
 <head>
-    <title>Customize Basic - API Examples</title>
+    <title>Customize - API Examples</title>
+    <link href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" rel="stylesheet">
     <style>
-        body { margin: 0; padding: 0; }
-        rapi-doc {
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #swagger-ui {
             height: 100vh;
             width: 100vw;
         }
     </style>
 </head>
-<body>
-    <rapi-doc
-        spec-url="/api/v1/spec/openapi.yml"
-        theme="light"
-        render-style="read"
-        show-header="false"
-        allow-authentication="false"
-        allow-server-selection="false"
-        allow-api-list-style-selection="false"
-        show-info="true"
-        primary-color="#3f51b5"
-        nav-bg-color="#ffffff"
-        nav-text-color="#333333"
-        nav-hover-bg-color="#f5f5f5"
-        nav-hover-text-color="#3f51b5"
-        nav-accent-color="#3f51b5"
-        nav-item-spacing="relaxed"
-        use-path-in-nav-bar="true"
-        layout="row"
-        schema-style="table"
-        schema-expand-level="2"
-        show-components="true"
-        show-curl-before-try="true"
-        fill-request-fields-with-example="true"
-        persist-auth="true"
-    ></rapi-doc>
-    <script src="https://unpkg.com/rapidoc@9.3.4/dist/rapidoc-min.js"></script>
-</body>
-</html> 
+<div id="swagger-ui"></div>
+<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+<script>
+    window.onload = function () {
+        SwaggerUIBundle({
+            url: "/api/v1/spec/openapi.yml",
+            dom_id: "#swagger-ui",
+        });
+    };
+</script>
